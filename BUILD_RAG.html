@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual Maestro de RAG | Guía Técnica Paso a Paso</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Configuración personalizada de Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: {
+              50: '#FDFCFA',
+              100: '#F7F5F0',
+              200: '#EDE8DF',
+              300: '#DFD7C8',
+            },
+            charcoal: {
+              900: '#1E1E1E',
+              700: '#3D3B38',
+              500: '#6B6760',
+              400: '#948F86',
+            },
+            terracotta: {
+              500: '#C86D51',
+              600: '#B0583D',
+              100: '#F9EBE6',
+            },
+            sage: {
+              600: '#4A6B5D',
+              700: '#395448',
+              100: '#E8F0EC',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          boxShadow: {
+            'editorial': '0 10px 30px -10px rgba(30, 30, 30, 0.08)',
+            'card': '0 4px 20px -2px rgba(30, 30, 30, 0.05)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Estilos base y animaciones suaves para la presentación */
+    body {
+      background-color: #F7F5F0;
+      color: #1E1E1E;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Transiciones de diapositivas */
+    .slide {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+      animation: slideFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Animación de flujo en líneas SVG */
+    .svg-flow-line {
+      stroke-dasharray: 6 6;
+      animation: dashFlow 24s linear infinite;
+    }
+
+    @keyframes dashFlow {
+      to {
+        stroke-dashoffset: -240;
+      }
+    }
+
+    /* Nodos interactivos del mapa conceptual */
+    .concept-node {
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .concept-node:hover {
+      transform: translateY(-3px);
+      filter: drop-shadow(0 6px 12px rgba(200, 109, 81, 0.18));
+    }
+
+    /* Scrollbar minimalista */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #EDE8DF;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #C4BBA9;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #948F86;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-terracotta-500 selection:text-white">
+
+  <!-- Barra de progreso superior fija -->
+  <div class="fixed top-0 left-0 right-0 h-1.5 bg-cream-200 z-50">
+    <div id="progressBar" class="h-full bg-terracotta-500 transition-all duration-300 ease-out" style="width: 10%;"></div>
+  </div>
+
+  <!-- Cabecera Minimalista de Navegación -->
+  <header class="sticky top-1.5 z-40 bg-cream-100/90 backdrop-blur-md border-b border-cream-200 px-4 sm:px-8 py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-charcoal-900 text-cream-50 flex items-center justify-center font-bold text-sm tracking-tight">
+          RAG
+        </div>
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-wider text-terracotta-500 block leading-none">Manual Técnico</span>
+          <span class="text-sm font-bold text-charcoal-900 hidden sm:inline">Arquitectura de Generación Aumentada</span>
+        </div>
+      </div>
+
+      <!-- Indicador y botón de índice -->
+      <div class="flex items-center gap-2 sm:gap-4">
+        <span id="slideCounter" class="text-xs sm:text-sm font-mono font-medium bg-cream-200 text-charcoal-700 px-3 py-1.5 rounded-full">
+          01 / 10
+        </span>
+        <button id="openIndexBtn" class="flex items-center gap-2 text-xs sm:text-sm font-semibold bg-white hover:bg-cream-200 text-charcoal-900 border border-cream-300 px-3.5 py-1.5 rounded-full transition shadow-sm">
+          <svg class="w-4 h-4 text-terracotta-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"/>
+          </svg>
+          <span>Índice</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal de Diapositivas -->
+  <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-10">
+
+    <!-- ===================================================================== -->
+    <!-- DIAPOSITIVA 1: PORTADA                                                -->
+    <!-- ===================================================================== -->
+    <section class="slide active" data-title="Portada: Manual Maestro de RAG">
+      <div class="bg-white rounded-3xl border border-cream-200 shadow-editorial p-6 sm:p-12 lg:p-16 relative overflow-hidden">
+        <!-- Decoración geométrica de fondo en SVG -->
+        <svg class="absolute right-0 top-0 h-full w-1/2 opacity-30 pointer-events-none hidden md:block" viewBox="0 0 400 400" fill="none">
+          <circle cx="320" cy="80" r="180" stroke="#C86D51" stroke-width="1.5" stroke-dasharray="6 6"/>
+          <circle cx="320" cy="80" r="120" stroke="#4A6B5D" stroke-width="1.5"/>
+          <circle cx="320" cy="80" r="60" fill="#F9EBE6"/>
+          <path d="M140 340 L260 220 L380 280" stroke="#1E1E1E" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <circle cx="140" cy="340" r="6" fill="#C86D51"/>
+          <circle cx="260" cy="220" r="8" fill="#4A6B5D"/>
+          <circle cx="380" cy="280" r="6" fill="#1E1E1E"/>
+        </svg>
+
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center gap-2 bg-terracotta-100 text-terracotta-600 font-semibold text-xs uppercase tracking-widest px-3.5 py-1.5 rounded-full mb-6">
+            <span class="w-2 h-2 rounded-full bg-terracotta-500"></span>
+            Guía Técnica Paso a Paso • Edición 2026
+          </div>
+
+          <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-charcoal-900 tracking-tight leading-[1.1] mb-6">
+            Manual Maestro de <span class="text-terracotta-500">RAG</span>
+            <span class="block text-xl sm:text-3xl font-semibold text-charcoal-700 mt-2">
+              Retrieval-Augmented Generation
+            </span>
+          </h1>
+
+          <p class="text-base sm:text-lg text-charcoal-500 leading-relaxed mb-8 max-w-2xl">
+            Domina la arquitectura esencial de la Inteligencia Artificial empresarial moderna: conecta Modelos de Lenguaje (LLMs) con tus datos privados en tiempo real, elimina alucinaciones y construye sistemas auditables con citas verificables.
+          </p>
+
+          <!-- Tarjetas resumen de lo que aprenderás -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-4">
+              <div class="text-terracotta-500 font-mono font-bold text-xs mb-1">01. ARQUITECTURA</div>
+              <div class="font-bold text-charcoal-900 text-sm">Ingesta e Inferencia</div>
+              <p class="text-xs text-charcoal-500 mt-1">Pipelines duales, mapas conceptuales y diagramas de flujo completos.</p>
+            </div>
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-4">
+              <div class="text-sage-600 font-mono font-bold text-xs mb-1">02. IMPLEMENTACIÓN</div>
+              <div class="font-bold text-charcoal-900 text-sm">Chunking & Vectores</div>
+              <p class="text-xs text-charcoal-500 mt-1">Estrategias de particionado, embeddings densos y código Python listo.</p>
+            </div>
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-4">
+              <div class="text-charcoal-900 font-mono font-bold text-xs mb-1">03. PRODUCCIÓN</div>
+              <div class="font-bold text-charcoal-900 text-sm">RAG Agéntico & RAGAS</div>
+              <p class="text-xs text-charcoal-500 mt-1">Búsqueda híbrida, Re-ranking, GraphRAG y métricas de evaluación.</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <button onclick="goToSlide(1)" class="bg-charcoal-900 hover:bg-terracotta-500 text-white font-semibold px-6 py-3.5 rounded-xl transition flex items-center gap-2 shadow-md">
+              <span>Comenzar el Manual</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </button>
+            <span class="text-xs text-charcoal-400 font-medium">
+              Usa las flechas <kbd class="px-2 py-0.5 bg-cream-200 rounded text-charcoal-700 font-mono">←</kbd> <kbd class="px-2 py-0.5 bg-cream-200 rounded text-charcoal-700 font-mono">→</kbd> para navegar
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- DIAPOSITIVA 2: ¿QUÉ ES RAG Y POR QUÉ ES INDISPENSABLE?                -->
+    <!-- ===================================================================== -->
+    <section class="slide" data-title="¿Qué es RAG y por qué es indispensable?">
+      <div class="space-y-6">
+        <div class="bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-10">
+          <span class="text-xs font-mono font-semibold uppercase tracking-wider text-terracotta-500">Fundamentos • Capítulo 01</span>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-charcoal-900 mt-1 mb-4">
+            ¿Qué es RAG y por qué es indispensable?
+          </h2>
+          <p class="text-charcoal-700 text-sm sm:text-base leading-relaxed max-w-4xl">
+            <strong>RAG (Generación Aumentada por Recuperación)</strong> es un patrón arquitectónico que otorga a un Modelo de Lenguaje (LLM) un <em>"examen a libro abierto"</em>. En lugar de depender únicamente de su memoria paramétrica congelada durante el entrenamiento, el sistema busca primero información relevante en una base de conocimiento externa y confiable, y la inyecta en el prompt antes de generar la respuesta.
+          </p>
+
+          <!-- 3 Limitaciones Críticas de los LLMs Puros -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div class="bg-terracotta-100/60 border border-terracotta-500/20 rounded-2xl p-5">
+              <div class="flex items-center gap-2.5 font-bold text-charcoal-900 mb-2">
+                <span class="w-7 h-7 rounded-lg bg-terracotta-500 text-white flex items-center justify-center text-xs font-mono">!</span>
+                Alucinaciones
+              </div>
+              <p class="text-xs sm:text-sm text-charcoal-700">
+                Cuando un LLM no sabe algo, tiende a inventar datos plausibles pero falsos con total seguridad, lo cual es inaceptable en entornos legales, médicos o financieros.
+              </p>
+            </div>
+
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-5">
+              <div class="flex items-center gap-2.5 font-bold text-charcoal-900 mb-2">
+                <span class="w-7 h-7 rounded-lg bg-charcoal-900 text-white flex items-center justify-center text-xs font-mono">⏱</span>
+                Conocimiento Estático
+              </div>
+              <p class="text-xs sm:text-sm text-charcoal-700">
+                Los modelos tienen una fecha de corte de entrenamiento. Desconocen eventos recientes, cambios de precios, nuevas normativas o actualizaciones de ayer.
+              </p>
+            </div>
+
+            <div class="bg-sage-100/70 border border-sage-600/20 rounded-2xl p-5">
+              <div class="flex items-center gap-2.5 font-bold text-charcoal-900 mb-2">
+                <span class="w-7 h-7 rounded-lg bg-sage-600 text-white flex items-center justify-center text-xs font-mono">🔒</span>
+                Falta de Datos Privados
+              </div>
+              <p class="text-xs sm:text-sm text-charcoal-700">
+                Un LLM público nunca vio tus contratos internos, manuales de soporte, bases de datos SQL o wikis corporativas. RAG conecta esos datos sin reentrenar el modelo.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla Comparativa: LLM Tradicional vs Fine-Tuning vs RAG -->
+        <div class="bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-8 overflow-hidden">
+          <h3 class="text-lg sm:text-xl font-bold text-charcoal-900 mb-4">Comparativa Estratégica de Enfoques</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="border-b-2 border-cream-200 text-charcoal-500 uppercase text-xs">
+                  <th class="py-3 px-4">Criterio</th>
+                  <th class="py-3 px-4">LLM Tradicional (Prompting)</th>
+                  <th class="py-3 px-4">Fine-Tuning (Ajuste Fino)</th>
+                  <th class="py-3 px-4 bg-sage-100/60 text-sage-700 rounded-t-xl">Arquitectura RAG (Recomendado)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-cream-200">
+                <tr>
+                  <td class="py-3.5 px-4 font-bold text-charcoal-900">Actualización de Datos</td>
+                  <td class="py-3.5 px-4 text-charcoal-500">Nula (congelado al entrenar)</td>
+                  <td class="py-3.5 px-4 text-charcoal-500">Lenta y costosa (requiere reentrenar)</td>
+                  <td class="py-3.5 px-4 bg-sage-100/40 font-semibold text-sage-700">Instantánea (segundos al indexar)</td>
+                </tr>
+                <tr>
+                  <td class="py-3.5 px-4 font-bold text-charcoal-900">Trazabilidad y Citas</td>
+                  <td class="py-3.5 px-4 text-charcoal-500">Imposible verificar fuentes</td>
+                  <td class="py-3.5 px-4 text-charcoal-500">Difícil (conocimiento difuso en pesos)</td>
+                  <td class="py-3.5 px-4 bg-sage-100/40 font-semibold text-sage-700">Exacta (página, documento y párrafo)</td>
+                </tr>
+                <tr>
+                  <td class="py-3.5 px-4 font-bold text-charcoal-900">Control de Alucinaciones</td>
+                  <td class="py-3.5 px-4 text-charcoal-500">Bajo (inventa si no sabe)</td>
+                  <td class="py-3.5 px-4 text-charcoal-500">Medio (mejora estilo, no hechos)</td>
+                  <td class="py-3.5 px-4 bg-sage-100/40 font-semibold text-sage-700">Alto (anclado estrictamente al contexto)</td>
+                </tr>
+                <tr>
+                  <td class="py-3.5 px-4 font-bold text-charcoal-900">Seguridad y Permisos</td>
+                  <td class="py-3.5 px-4 text-charcoal-500">Sin control por usuario</td>
+                  <td class="py-3.5 px-4 text-charcoal-500">Riesgo de fuga de datos entrenados</td>
+                  <td class="py-3.5 px-4 bg-sage-100/40 font-semibold text-sage-700">Filtros RBAC por rol en la búsqueda</td>
+                </tr>
+                <tr>
+                  <td class="py-3.5 px-4 font-bold text-charcoal-900">Mejor Caso de Uso</td>
+                  <td class="py-3.5 px-4 text-charcoal-500">Tareas creativas y resumen general</td>
+                  <td class="py-3.5 px-4 text-charcoal-500">Aprender tono, formato o jerga médica</td>
+                  <td class="py-3.5 px-4 bg-sage-100/40 font-semibold text-sage-700">Conocimiento dinámico y datos privados</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- DIAPOSITIVA 3: MAPA CONCEPTUAL INTERACTIVO DE RAG                     -->
+    <!-- ===================================================================== -->
+    <section class="slide" data-title="Mapa Conceptual Interactivo de RAG">
+      <div class="bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-10">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-wider text-terracotta-500">Visión Sistémica • Capítulo 02</span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-charcoal-900 mt-1">
+              Mapa Conceptual de RAG
+            </h2>
+          </div>
+          <span class="text-xs bg-cream-100 border border-cream-300 text-charcoal-700 px-3.5 py-2 rounded-xl font-medium">
+            👆 Haz clic en cualquier nodo del mapa para inspeccionar su función
+          </span>
+        </div>
+
+        <!-- Diagrama SVG Interactivo -->
+        <div class="bg-cream-50 border border-cream-200 rounded-2xl p-4 overflow-x-auto">
+          <svg viewBox="0 0 960 320" class="w-full min-w-[760px] h-auto select-none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrowTerracotta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#C86D51"/>
+              </marker>
+              <marker id="arrowSage" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#4A6B5D"/>
+              </marker>
+            </defs>
+
+            <!-- Etiquetas de Zona -->
+            <rect x="16" y="14" width="445" height="292" rx="16" fill="#F7F5F0" stroke="#DFD7C8" stroke-width="1.5"/>
+            <text x="34" y="38" fill="#6B6760" font-size="11" font-weight="700" letter-spacing="1.2">ZONA A: PREPARACIÓN Y MEMORIA VECTORIAL</text>
+
+            <rect x="485" y="14" width="459" height="292" rx="16" fill="#F9EBE6" fill-opacity="0.35" stroke="#E5C5B9" stroke-width="1.5"/>
+            <text x="505" y="38" fill="#B0583D" font-size="11" font-weight="700" letter-spacing="1.2">ZONA B: RECUPERACIÓN Y GENERACIÓN</text>
+
+            <!-- Líneas de Conexión -->
+            <!-- 1 -> 2 -->
+            <path d="M 165 110 L 210 110" stroke="#4A6B5D" stroke-width="2" marker-end="url(#arrowSage)"/>
+            <!-- 2 -> 3 -->
+            <path d="M 350 110 L 350 165" stroke="#4A6B5D" stroke-width="2" marker-end="url(#arrowSage)"/>
+            <!-- 3 -> 4 -->
+            <path d="M 280 215 L 225 215" stroke="#4A6B5D" stroke-width="2" marker-end="url(#arrowSage)"/>
+            <!-- 4 -> 5 (Cruce entre zonas) -->
+            <path d="M 220 245 C 360 285, 450 265, 515 215" stroke="#C86D51" stroke-width="2.5" class="svg-flow-line" fill="none" marker-end="url(#arrowTerracotta)"/>
+            <!-- 5 -> 6 -->
+            <path d="M 580 165 L 580 135" stroke="#C86D51" stroke-width="2" marker-end="url(#arrowTerracotta)"/>
+            <!-- 6 -> 7 -->
+            <path d="M 660 100 L 715 100" stroke="#C86D51" stroke-width="2" marker-end="url(#arrowTerracotta)"/>
+            <!-- 7 -> 8 -->
+            <path d="M 815 135 L 815 170" stroke="#C86D51" stroke-width="2" marker-end="url(#arrowTerracotta)"/>
+
+            <!-- NODO 1: Fuentes de Datos -->
+            <g class="concept-node" onclick="selectConcept(0)">
+              <rect x="30" y="70" width="135" height="75" rx="12" fill="#FFFFFF" stroke="#4A6B5D" stroke-width="2"/>
+              <text x="97" y="98" text-anchor="middle" fill="#4A6B5D" font-size="10" font-weight="700">1. ORIGEN</text>
+              <text x="97" y="116" text-anchor="middle" fill="#1E1E1E" font-size="13" font-weight="700">Fuentes de Datos</text>
+              <text x="97" y="132" text-anchor="middle" fill="#6B6760" font-size="10">PDF, SQL, Web, APIs</text>
+            </g>
+
+            <!-- NODO 2: Chunking -->
+            <g class="concept-node" onclick="selectConcept(1)">
+              <rect x="215" y="70" width="145" height="75" rx="12" fill="#FFFFFF" stroke="#4A6B5D" stroke-width="2"/>
+              <text x="287" y="98" text-anchor="middle" fill="#4A6B5D" font-size="10" font-weight="700">2. SEGMENTACIÓN</text>
+              <text x="287" y="116" text-anchor="middle" fill="#1E1E1E" font-size="13" font-weight="700">Chunking</text>
+              <text x="287" y="132" text-anchor="middle" fill="#6B6760" font-size="10">Fragmentos + Overlap</text>
+            </g>
+
+            <!-- NODO 3: Embeddings -->
+            <g class="concept-node" onclick="selectConcept(2)">
+              <rect x="285" y="175" width="155" height="75" rx="12" fill="#FFFFFF" stroke="#4A6B5D" stroke-width="2"/>
+              <text x="362" y="203" text-anchor="middle" fill="#4A6B5D" font-size="10" font-weight="700">3. VECTORIZACIÓN</text>
+              <text x="362" y="221" text-anchor="middle" fill="#1E1E1E" font-size="13" font-weight="700">Embeddings</text>
+              <text x="362" y="237" text-anchor="middle" fill="#6B6760" font-size="10">Representación densa</text>
+            </g>
+
+            <!-- NODO 4: Vector DB -->
+            <g class="concept-node" onclick="selectConcept(3)">
+              <rect x="65" y="175" width="155" height="75" rx="12" fill="#4A6B5D" stroke="#395448" stroke-width="2"/>
+              <text x="142" y="203" text-anchor="middle" fill="#E8F0EC" font-size="10" font-weight="700">4. ALMACÉN</text>
+              <text x="142" y="221" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="700">Vector DB</text>
+              <text x="142" y="237" text-anchor="middle" fill="#E8F0EC" font-size="10">Índice ANN + Metadatos</text>
+            </g>
+
+            <!-- NODO 5: Retriever -->
+            <g class="concept-node" onclick="selectConcept(4)">
+              <rect x="515" y="170" width="145" height="75" rx="12" fill="#FFFFFF" stroke="#C86D51" stroke-width="2"/>
+              <text x="587" y="198" text-anchor="middle" fill="#C86D51" font-size="10" font-weight="700">5. BÚSQUEDA</text>
+              <text x="587" y="216" text-anchor="middle" fill="#1E1E1E" font-size="13" font-weight="700">Retriever</text>
+              <text x="587" y="232" text-anchor="middle" fill="#6B6760" font-size="10">Top-K + Re-ranking</text>
+            </g>
+
+            <!-- NODO 6: Prompt Augmentation -->
+            <g class="concept-node" onclick="selectConcept(5)">
+              <rect x="505" y="60" width="155" height="72" rx="12" fill="#FFFFFF" stroke="#C86D51" stroke-width="2"/>
+              <text x="582" y="86" text-anchor="middle" fill="#C86D51" font-size="10" font-weight="700">6. INYECCIÓN</text>
+              <text x="582" y="104" text-anchor="middle" fill="#1E1E1E" font-size="12" font-weight="700">Prompt Aumentado</text>
+              <text x="582" y="120" text-anchor="middle" fill="#6B6760" font-size="10">Query + Contexto + Reglas</text>
+            </g>
+
+            <!-- NODO 7: LLM -->
+            <g class="concept-node" onclick="selectConcept(6)">
+              <rect x="720" y="60" width="195" height="72" rx="12" fill="#1E1E1E" stroke="#1E1E1E" stroke-width="2"/>
+              <text x="817" y="86" text-anchor="middle" fill="#C86D51" font-size="10" font-weight="700">7. RAZONAMIENTO</text>
+              <text x="817" y="104" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="700">Modelo LLM</text>
+              <text x="817" y="120" text-anchor="middle" fill="#DFD7C8" font-size="10">Síntesis fiel al contexto</text>
+            </g>
+
+            <!-- NODO 8: Respuesta Verificada -->
+            <g class="concept-node" onclick="selectConcept(7)">
+              <rect x="720" y="175" width="195" height="75" rx="12" fill="#C86D51" stroke="#B0583D" stroke-width="2"/>
+              <text x="817" y="203" text-anchor="middle" fill="#F9EBE6" font-size="10" font-weight="700">8. SALIDA</text>
+              <text x="817" y="221" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="700">Respuesta Verificada</text>
+              <text x="817" y="237" text-anchor="middle" fill="#F9EBE6" font-size="10">Con citas y fuentes exactas</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Panel Dinámico de Inspección del Concepto Seleccionado -->
+        <div id="conceptDetailBox" class="mt-6 bg-cream-100 border border-cream-200 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="conceptBadge" class="text-xs font-mono font-bold bg-sage-600 text-white px-2.5 py-0.5 rounded-md">NODO 1 DE 8</span>
+              <h3 id="conceptTitle" class="text-lg font-bold text-charcoal-900">Fuentes de Datos (Data Sources)</h3>
+            </div>
+            <p id="conceptDesc" class="text-sm text-charcoal-700 mt-2 leading-relaxed">
+              Constituyen la materia prima del sistema: documentos PDF, bases de datos relacionales (SQL), páginas web, Notion, Confluence, correos electrónicos o transcripciones. Antes de procesarse, se extraen y limpian eliminando encabezados repetitivos, ruido HTML o caracteres corruptos.
+            </p>
+          </div>
+          <div class="bg-white border border-cream-200 rounded-xl p-3.5 shrink-0 w-full sm:w-64">
+            <span class="text-[11px] font-mono uppercase text-charcoal-400 block">Herramientas Clave</span>
+            <span id="conceptTools" class="text-xs font-semibold text-charcoal-900 mt-1 block">PyMuPDF, Unstructured, LlamaParse, Docling</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- DIAPOSITIVA 4: DIAGRAMA DE FLUJO COMPLETO (ARQUITECTURA DUAL)         -->
+    <!-- ===================================================================== -->
+    <section class="slide" data-title="Diagrama de Flujo Completo (Arquitectura Dual)">
+      <div class="bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-10">
+        <span class="text-xs font-mono font-semibold uppercase tracking-wider text-terracotta-500">Flujo Técnico • Capítulo 03</span>
+        <h2 class="text-2xl sm:text-4xl font-extrabold text-charcoal-900 mt-1 mb-2">
+          Arquitectura Dual: Ingesta vs. Inferencia
+        </h2>
+        <p class="text-sm text-charcoal-500 mb-6">
+          Todo sistema RAG se divide en dos tuberías (pipelines) independientes: una asíncrona de indexación y otra síncrona en tiempo real ante cada consulta del usuario.
+        </p>
+
+        <!-- Diagrama SVG Detallado de 2 Fases -->
+        <div class="bg-cream-50 border border-cream-200 rounded-2xl p-4 sm:p-6 overflow-x-auto">
+          <svg viewBox="0 0 980 430" class="w-full min-w-[800px] h-auto" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrDark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#1E1E1E"/>
+              </marker>
+              <marker id="arrTerra" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#C86D51"/>
+              </marker>
+            </defs>
+
+            <!-- FASE 1: PIPELINE DE INGESTA (OFFLINE) -->
+            <rect x="10" y="10" width="960" height="175" rx="18" fill="#E8F0EC" fill-opacity="0.55" stroke="#4A6B5D" stroke-width="1.5"/>
+            <rect x="28" y="24" width="285" height="26" rx="8" fill="#4A6B5D"/>
+            <text x="170" y="41" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="700" letter-spacing="0.8">FASE 1: PIPELINE DE INGESTA (OFFLINE / BATCH)</text>
+
+            <!-- Paso 1.1: Documentos -->
+            <rect x="30" y="70" width="150" height="90" rx="12" fill="#FFFFFF" stroke="#4A6B5D" stroke-width="1.5"/>
+            <text x="105" y="95" text-anchor="middle" fill="#1E1E1E" font-size="12" font-weight="700">1. Documentos Crudos</text>
+            <text x="105" y="114" text-anchor="middle" fill="#6B6760" font-size="10">PDF, DOCX, SQL, Notion</text>
+            <text x="105" y="132" text-anchor="middle" fill="#4A6B5D" font-size="10" font-weight="600">+ Extracción de Tablas</text>
+
+            <path d="M 182 115 L 218 115" stroke="#1E1E1E" stroke-width="1.8" marker-end="url(#arrDark)"/>
+
+            <!-- Paso 1.2: Limpieza y Chunking -->
+            <rect x="222" y="70" width="165" height="90" rx="12" fill="#FFFFFF" stroke="#4A6B5D" stroke-width="1.5"/>
+            <text x="304" y="95" text-anchor="middle" fill="#1E1E1E" font-size="12" font-weight="700">2. Limpieza & Chunking</text>
+            <text x="304" y="114" text-anchor="middle" fill="#6B6760" font-size="10">División semántica/recursiva</text>
+            <text x="304" y="132" text-anchor="middle" fill="#4A6B5D" font-size="10" font-weight="600">512 tokens + 15% overlap</text>
+
+            <path d="M 389 115 L 425 115" stroke="#1E1E1E" stroke-width="1.8" marker-end="url(#arrDark)"/>
+
+            <!-- Paso 1.3: Modelo Embeddings -->
+            <rect x="429" y="70" width="175" height="90" rx="12" fill="#FFFFFF" stroke="#4A6B5D" stroke-width="1.5"/>
+            <text x="516" y="95" text-anchor="middle" fill="#1E1E1E" font-size="12" font-weight="700">3. Embedding Model</text>
+            <text x="516" y="114" text-anchor="middle" fill="#6B6760" font-size="10">Texto → Vector [0.12, -0.84...]</text>
+            <text x="516" y="132" text-anchor="middle" fill="#4A6B5D" font-size="10" font-weight="600">1536 o 3072 dimensiones</text>
+
+            <path d="M 606 115 L 650 115" stroke="#1E1E1E" stroke-width="1.8" marker-end="url(#arrDark)"/>
+
+            <!-- Almacén Central Compartido: Vector DB -->
+            <rect x="655" y="65" width="290" height="190" rx="16" fill="#1E1E1E" stroke="#C86D51" stroke-width="2.5"/>
+            <text x="800" y="94" text-anchor="middle" fill="#C86D51" font-size="11" font-weight="700" letter-spacing="1">BASE DE DATOS VECTORIAL</text>
+            <text x="800" y="116" text-anchor="middle" fill="#FFFFFF" font-size="15" font-weight="800">Índice HNSW + BM25</text>
+            <rect x="678" y="132" width="244" height="44" rx="8" fill="#2E2E2E"/>
+            <text x="800" y="151" text-anchor="middle" fill="#DFD7C8" font-size="10">Vectores + Texto Original + Metadatos</text>
+            <text x="800" y="166" text-anchor="middle" fill="#948F86" font-size="9">(archivo, página, fecha, permisos_rol)</text>
+            <text x="800" y="235" text-anchor="middle" fill="#4A6B5D" font-size="11" font-weight="700">● Puente entre Offline y Online</text>
+
+            <!-- FASE 2: PIPELINE DE INFERENCIA (ONLINE / TIEMPO REAL) -->
+            <rect x="10" y="205" width="625" height="215" rx="18" fill="#F9EBE6" fill-opacity="0.6" stroke="#C86D51" stroke-width="1.5"/>
+            <rect x="28" y="218" width="315" height="26" rx="8" fill="#C86D51"/>
+            <text x="185" y="235" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="700" letter-spacing="0.8">FASE 2: PIPELINE DE INFERENCIA (ONLINE / REAL-TIME)</text>
+
+            <!-- Paso 2.1: Usuario Query -->
+            <rect x="30" y="260" width="145" height="65" rx="12" fill="#FFFFFF" stroke="#C86D51" stroke-width="1.5"/>
+            <text x="102" y="285" text-anchor="middle" fill="#1E1E1E" font-size="12" font-weight="700">1. Pregunta Usuario</text>
+            <text x="102" y="303" text-anchor="middle" fill="#6B6760" font-size="10">"¿Cuál es la política</text>
+            <text x="102" y="315" text-anchor="middle" fill="#6B6760" font-size="10">de reembolsos 2026?"</text>
+
+            <path d="M 177 292 L 210 292" stroke="#C86D51" stroke-width="1.8" marker-end="url(#arrTerra)"/>
+
+            <!-- Paso 2.2: Query Embedding -->
+            <rect x="214" y="260" width="160" height="65" rx="12" fill="#FFFFFF" stroke="#C86D51" stroke-width="1.5"/>
+            <text x="294" y="285" text-anchor="middle" fill="#1E1E1E" font-size="12" font-weight="700">2. Query Embedding</text>
+            <text x="294" y="303" text-anchor="middle" fill="#6B6760" font-size="10">Mismo modelo de</text>
+            <text x="294" y="315" text-anchor="middle" fill="#C86D51" font-size="10" font-weight="600">embeddings que Fase 1</text>
+
+            <!-- Flecha de Consulta hacia Vector DB -->
+            <path d="M 376 280 C 480 280, 560 230, 650 205" stroke="#C86D51" stroke-width="2" class="svg-flow-line" fill="none" marker-end="url(#arrTerra)"/>
+            <text x="505" y="262" text-anchor="middle" fill="#B0583D" font-size="10" font-weight="700">Búsqueda Top-K</text>
+
+            <!-- Flecha de Retorno desde Vector DB hacia Contexto -->
+            <path d="M 730 258 C 730 315, 670 355, 615 365" stroke="#4A6B5D" stroke-width="2" fill="none" marker-end="url(#arrDark)"/>
+            <text x="720" y="330" text-anchor="middle" fill="#395448" font-size="10" font-weight="700">Top-5 Chunks</text>
+
+            <!-- Paso 2.3: Prompt Augmentation -->
+            <rect x="425" y="335" width="185" height="70" rx="12" fill="#FFFFFF" stroke="#C86D51" stroke-width="1.5"/>
+            <text x="517" y="358" text-anchor="middle" fill="#1E1E1E" font-size="12" font-weight="700">3. Prompt Aumentado</text>
+            <text x="517" y="375" text-anchor="middle" fill="#6B6760" font-size="10">System Prompt + Chunks</text>
+            <text x="517" y="390" text-anchor="middle" fill="#C86D51" font-size="10" font-weight="600">+ Pregunta del Usuario</text>
+
+            <path d="M 422 370 L 382 370" stroke="#C86D51" stroke-width="1.8" marker-end="url(#arrTerra)"/>
+
+            <!-- Paso 2.4: LLM Generación -->
+            <rect x="214" y="338" width="164" height="65" rx="12" fill="#1E1E1E"/>
+            <text x="296" y="363" text-anchor="middle" fill="#FFFFFF" font-size="12" font-weight="700">4. Generación LLM</text>
+            <text x="296" y="381" text-anchor="middle" fill="#DFD7C8" font-size="10">Razonamiento estricto</text>
+            <text x="296" y="394" text-anchor="middle" fill="#C86D51" font-size="10">sobre el contexto</text>
+
+            <path d="M 210 370 L 179 370" stroke="#C86D51" stroke-width="1.8" marker-end="url(#arrTerra)"/>
+
+            <!-- Paso 2.5: Respuesta Final -->
+            <rect x="30" y="338" width="145" height="65" rx="12" fill="#C86D51"/>
+            <text x="102" y="363" text-anchor="middle" fill="#FFFFFF" font-size="12" font-weight="700">5. Respuesta Final</text>
+            <text x="102" y="381" text-anchor="middle" fill="#F9EBE6" font-size="10">Texto preciso +</text>
+            <text x="102" y="394" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="700">[Fuente: Pág. 14]</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- DIAPOSITIVA 5: PASO 1 Y 2 - CARGA DE DATOS Y CHUNKING INTERACTIVO     -->
+    <!-- ===================================================================== -->
+    <section class="slide" data-title="Paso 1 y 2: Carga de Datos y Chunking">
+      <div class="space-y-6">
+        <div class="bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-10">
+          <span class="text-xs font-mono font-semibold uppercase tracking-wider text-terracotta-500">Implementación • Pasos 1 y 2</span>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-charcoal-900 mt-1 mb-3">
+            Carga de Datos y Estrategias de Chunking
+          </h2>
+          <p class="text-sm sm:text-base text-charcoal-700 leading-relaxed mb-6">
+            El <strong>80% de los fallos en un sistema RAG</strong> ocurren por una mala extracción de datos o una división deficiente de los textos. Si partes una tabla o separas una pregunta de su respuesta, el LLM no podrá reconstruir el significado.
+          </p>
+
+          <!-- 3 Estrategias de Chunking -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-5">
+              <div class="text-xs font-mono font-bold text-charcoal-500 mb-1">ESTRATEGIA A • BÁSICA</div>
+              <h3 class="font-bold text-charcoal-900 text-base mb-2">Fixed-Size Chunking</h3>
+              <p class="text-xs text-charcoal-700 leading-relaxed">
+                Corta el texto cada <em>N</em> caracteres o tokens sin importar si corta palabras u oraciones a la mitad. Rápido, pero rompe el contexto semántico.
+              </p>
+            </div>
+
+            <div class="bg-sage-100/70 border-2 border-sage-600 rounded-2xl p-5 relative">
+              <span class="absolute top-3 right-3 text-[10px] font-mono font-bold bg-sage-600 text-white px-2 py-0.5 rounded">ESTÁNDAR</span>
+              <div class="text-xs font-mono font-bold text-sage-700 mb-1">ESTRATEGIA B • RECOMENDADA</div>
+              <h3 class="font-bold text-charcoal-900 text-base mb-2">Recursive Character</h3>
+              <p class="text-xs text-charcoal-700 leading-relaxed">
+                Intenta dividir primero por párrafos (<code>\n\n</code>), luego por líneas (<code>\n</code>) y finalmente por frases, manteniendo unidades de pensamiento intactas con <strong>overlap</strong>.
+              </p>
+            </div>
+
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-5">
+              <div class="text-xs font-mono font-bold text-terracotta-500 mb-1">ESTRATEGIA C • AVANZADA</div>
+              <h3 class="font-bold text-charcoal-900 text-base mb-2">Semantic & Markdown</h3>
+              <p class="text-xs text-charcoal-700 leading-relaxed">
+                Divide documentos según encabezados estructurales (<code># H1</code>, <code>## H2</code>) o detectando cambios bruscos en la similitud de embeddings entre oraciones consecutivas.
+              </p>
+            </div>
+          </div>
+
+          <!-- Simulador Interactivo de Chunking + Overlap -->
+          <div class="bg-cream-50 border border-cream-300 rounded-2xl p-5 sm:p-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-cream-200">
+              <div>
+                <h3 class="font-bold text-charcoal-900 text-base">🎛️ Simulador Visual: Tamaño de Chunk y Solapamiento (Overlap)</h3>
+                <p class="text-xs text-charcoal-500">Ajusta los controles para observar cómo el solapamiento evita que se pierda contexto entre cortes.</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-4">
+                <div>
+                  <label class="text-xs font-mono font-semibold text-charcoal-700 block">
+                    chunk_size: <span id="chunkSizeVal" class="text-terracotta-500">120</span> chars
+                  </label>
+                  <input id="chunkSizeSlider" type="range" min="70" max="200" value="120" class="accent-terracotta-500 w-32">
+                </div>
+                <div>
+                  <label class="text-xs font-mono font-semibold text-charcoal-700 block">
+                    chunk_overlap: <span id="chunkOverlapVal" class="text-sage-600">30</span> chars
+                  </label>
+                  <input id="chunkOverlapSlider" type="range" min="0" max="60" value="30" class="accent-sage-600 w-32">
+                </div>
+              </div>
+            </div>
+
+            <div id="chunkPreviewContainer" class="mt-4 space-y-3">
+              <!-- Generado dinámicamente por JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- DIAPOSITIVA 6: PASO 3 Y 4 - EMBEDDINGS Y BASES DE DATOS VECTORIALES   -->
+    <!-- ===================================================================== -->
+    <section class="slide" data-title="Paso 3 y 4: Embeddings y Bases de Datos Vectoriales">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Columna Izquierda: Explicación Visual de Embeddings y Similitud Coseno -->
+        <div class="lg:col-span-5 bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-8 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-wider text-terracotta-500">Paso 3 • Semántica</span>
+            <h2 class="text-2xl font-extrabold text-charcoal-900 mt-1 mb-3">
+              Embeddings y Espacio Vectorial
+            </h2>
+            <p class="text-xs sm:text-sm text-charcoal-700 leading-relaxed mb-4">
+              Un <strong>Embedding</strong> traduce texto a una lista de números flotantes (ej. 1,536 dimensiones) que capturan su <em>significado semántico</em>. Frases con significados similares quedan geométricamente cerca, aunque usen palabras distintas.
+            </p>
+
+            <!-- Ilustración SVG de Espacio Vectorial 2D -->
+            <div class="bg-cream-50 border border-cream-200 rounded-2xl p-4 my-4">
+              <svg viewBox="0 0 320 230" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                <!-- Ejes -->
+                <line x1="35" y1="195" x2="300" y2="195" stroke="#948F86" stroke-width="1.5"/>
+                <line x1="35" y1="195" x2="35" y2="20" stroke="#948F86" stroke-width="1.5"/>
+                <text x="295" y="212" text-anchor="end" fill="#6B6760" font-size="10" font-family="monospace">Dimensión X</text>
+                <text x="42" y="28" fill="#6B6760" font-size="10" font-family="monospace">Dimensión Y</text>
+
+                <!-- Cluster Finanzas / Reembolsos -->
+                <circle cx="220" cy="75" r="55" fill="#F9EBE6" stroke="#C86D51" stroke-dasharray="4 4"/>
+                <line x1="35" y1="195" x2="210" y2="62" stroke="#C86D51" stroke-width="1.8"/>
+                <line x1="35" y1="195" x2="238" y2="88" stroke="#4A6B5D" stroke-width="1.8"/>
+                
+                <!-- Ángulo Theta -->
+                <path d="M 85 156 A 60 60 0 0 1 92 164" fill="none" stroke="#1E1E1E" stroke-width="1.5"/>
+                <text x="98" y="158" fill="#1E1E1E" font-size="10" font-weight="700">θ pequeño (cos ≈ 0.94)</text>
+
+                <circle cx="210" cy="62" r="5" fill="#C86D51"/>
+                <text x="210" y="50" text-anchor="middle" fill="#B0583D" font-size="10" font-weight="700">"Devolución de dinero"</text>
+
+                <circle cx="238" cy="88" r="5" fill="#4A6B5D"/>
+                <text x="242" y="104" text-anchor="middle" fill="#395448" font-size="10" font-weight="700">"Política de reembolso"</text>
+
+                <!-- Punto Lejano: Soporte Técnico -->
+                <circle cx="95" cy="65" r="5" fill="#6B6760"/>
+                <text x="95" y="52" text-anchor="middle" fill="#6B6760" font-size="10">"Reiniciar servidor"</text>
+              </svg>
+            </div>
+          </div>
+
+          <div class="bg-cream-100 rounded-xl p-3.5 border border-cream-200">
+            <span class="text-xs font-bold text-charcoal-900 block">Modelos de Embeddings Top:</span>
+            <ul class="text-xs text-charcoal-700 mt-1 space-y-1 font-mono">
+              <li>• text-embedding-3-large (OpenAI)</li>
+              <li>• BAAI/bge-m3 (Open Source Multilingüe)</li>
+              <li>• Cohere embed-v3 / Gemini Embedding</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Comparativa de Bases de Datos Vectoriales -->
+        <div class="lg:col-span-7 bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-8">
+          <span class="text-xs font-mono font-semibold uppercase tracking-wider text-sage-600">Paso 4 • Almacenamiento e Indexación</span>
+          <h2 class="text-2xl font-extrabold text-charcoal-900 mt-1 mb-3">
+            Bases de Datos Vectoriales (Vector DBs)
+          </h2>
+          <p class="text-xs sm:text-sm text-charcoal-700 leading-relaxed mb-5">
+            Utilizan algoritmos de búsqueda aproximada de vecinos más cercanos (<strong>ANN</strong> como <strong>HNSW</strong> o <strong>IVF</strong>) para comparar millones de vectores en milisegundos filtrando por metadatos.
+          </p>
+
+          <div class="space-y-3">
+            <!-- Qdrant -->
+            <div class="border border-cream-200 hover:border-terracotta-500/50 rounded-2xl p-4 transition bg-cream-50/50">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-charcoal-900 text-base">Qdrant</span>
+                <span class="text-[11px] font-mono bg-terracotta-100 text-terracotta-600 px-2.5 py-0.5 rounded-full font-semibold">Rust • Alto Rendimiento</span>
+              </div>
+              <p class="text-xs text-charcoal-700 mt-1.5">
+                Excelente filtrado de metadatos en tiempo real, soporte nativo para búsqueda híbrida (vectores densos + dispersos) y despliegue sencillo en Docker o Cloud.
+              </p>
+            </div>
+
+            <!-- PostgreSQL + pgvector -->
+            <div class="border border-cream-200 hover:border-sage-600/50 rounded-2xl p-4 transition bg-cream-50/50">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-charcoal-900 text-base">PostgreSQL + pgvector</span>
+                <span class="text-[11px] font-mono bg-sage-100 text-sage-700 px-2.5 py-0.5 rounded-full font-semibold">SQL Unificado • Producción</span>
+              </div>
+              <p class="text-xs text-charcoal-700 mt-1.5">
+                Ideal si ya usas Postgres: evita mantener dos bases de datos sincronizadas. Permite hacer JOINs entre datos relacionales de negocio y embeddings con índices HNSW.
+              </p>
+            </div>
+
+            <!-- ChromaDB -->
+            <div class="border border-cream-200 rounded-2xl p-4 bg-cream-50/50">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-charcoal-900 text-base">ChromaDB</span>
+                <span class="text-[11px] font-mono bg-cream-200 text-charcoal-700 px-2.5 py-0.5 rounded-full font-semibold">Python • Prototipado Rápido</span>
+              </div>
+              <p class="text-xs text-charcoal-700 mt-1.5">
+                Ligera, embebida en memoria o disco local con cero configuración. La mejor opción para desarrollo local, pruebas de concepto y aplicaciones medianas.
+              </p>
+            </div>
+
+            <!-- Pinecone / Milvus -->
+            <div class="border border-cream-200 rounded-2xl p-4 bg-cream-50/50">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-charcoal-900 text-base">Pinecone & Milvus</span>
+                <span class="text-[11px] font-mono bg-cream-200 text-charcoal-700 px-2.5 py-0.5 rounded-full font-semibold">Escala Masiva (+100M vectores)</span>
+              </div>
+              <p class="text-xs text-charcoal-700 mt-1.5">
+                Pinecone ofrece infraestructura Serverless 100% gestionada; Milvus es el estándar distribuido Open Source para cargas masivas empresariales.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- DIAPOSITIVA 7: PASO 5 Y 6 - RECUPERACIÓN HÍBRIDA Y PROMPTING          -->
+    <!-- ===================================================================== -->
+    <section class="slide" data-title="Paso 5 y 6: Recuperación y Generación Aumentada">
+      <div class="space-y-6">
+        <div class="bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-10">
+          <span class="text-xs font-mono font-semibold uppercase tracking-wider text-terracotta-500">Implementación • Pasos 5 y 6</span>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-charcoal-900 mt-1 mb-4">
+            Recuperación Híbrida, Re-ranking y Prompting Seguro
+          </h2>
+
+          <!-- Pipeline de Recuperación en 3 Etapas -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono font-bold text-sage-700">ETAPA 5A</span>
+                <span class="text-xs bg-white px-2 py-0.5 rounded border border-cream-200 font-semibold">Recall Alto</span>
+              </div>
+              <h3 class="font-bold text-charcoal-900 text-base mb-1.5">Búsqueda Híbrida (RRF)</h3>
+              <p class="text-xs text-charcoal-700 leading-relaxed">
+                Combina <strong>Búsqueda Vectorial</strong> (intención semántica) + <strong>BM25 Léxico</strong> (palabras exactas como códigos SKU, nombres propios o leyes) mediante <em>Reciprocal Rank Fusion</em>.
+              </p>
+            </div>
+
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono font-bold text-terracotta-600">ETAPA 5B</span>
+                <span class="text-xs bg-white px-2 py-0.5 rounded border border-cream-200 font-semibold">Precisión Alta</span>
+              </div>
+              <h3 class="font-bold text-charcoal-900 text-base mb-1.5">Re-ranking (Cross-Encoder)</h3>
+              <p class="text-xs text-charcoal-700 leading-relaxed">
+                Recupera los Top-25 candidatos y pásalos por un modelo Re-ranker (ej. <em>Cohere Rerank</em> o <em>BGE-Reranker</em>) que evalúa la relevancia real pregunta-fragmento y selecciona los <strong>Top-5 mejores</strong>.
+              </p>
+            </div>
+
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono font-bold text-charcoal-900">ETAPA 6</span>
+                <span class="text-xs bg-white px-2 py-0.5 rounded border border-cream-200 font-semibold">Grounding</span>
+              </div>
+              <h3 class="font-bold text-charcoal-900 text-base mb-1.5">Generación con Citas</h3>
+              <p class="text-xs text-charcoal-700 leading-relaxed">
+                Inyecta los Top-5 chunks delimitados con etiquetas XML y ordena al LLM responder <strong>únicamente</strong> usando ese contexto, citando el identificador del documento.
+              </p>
+            </div>
+          </div>
+
+          <!-- Plantilla de System Prompt Anti-Alucinación -->
+          <div class="bg-charcoal-900 text-cream-50 rounded-2xl p-5 sm:p-6">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-mono font-semibold text-terracotta-500 uppercase tracking-wider">
+                Plantilla de System Prompt Anti-Alucinación (Producción)
+              </span>
+              <button onclick="copyPromptTemplate()" id="copyPromptBtn" class="text-xs font-mono bg-charcoal-700 hover:bg-terracotta-500 text-white px-3 py-1.5 rounded-lg transition">
+                Copiar Prompt
+              </button>
+            </div>
+            <pre id="systemPromptText" class="text-xs sm:text-sm font-mono text-cream-200 overflow-x-auto leading-relaxed whitespace-pre-wrap">Eres un asistente técnico experto. Responde a la pregunta del usuario basándote ÚNICAMENTE en los fragmentos proporcionados dentro de las etiquetas &lt;contexto&gt;.
+
+REGLAS ESTRICTAS:
+1. Si la respuesta no se encuentra explícitamente en el &lt;contexto&gt;, responde exactamente: "No dispongo de información suficiente en los documentos proporcionados para responder a esta consulta."
+2. No utilices conocimiento externo ni hagas suposiciones.
+3. Cita siempre la fuente al final de cada afirmación usando el formato [Doc: {nombre_archivo}, Pág: {pagina}].
+
+&lt;contexto&gt;
+{fragmentos_recuperados}
+&lt;/contexto&gt;</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- DIAPOSITIVA 8: IMPLEMENTACIÓN PRÁCTICA EN CÓDIGO (PYTHON)             -->
+    <!-- ===================================================================== -->
+    <section class="slide" data-title="Implementación Práctica en Código (Python)">
+      <div class="bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-10">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-wider text-terracotta-500">Manos a la Obra • Código Real</span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-charcoal-900 mt-1">
+              Pipeline RAG Completo en Python
+            </h2>
+          </div>
+
+          <!-- Selector de Pestañas de Código -->
+          <div class="inline-flex bg-cream-200 p-1 rounded-xl self-start">
+            <button id="tabIngestaBtn" onclick="switchCodeTab('ingesta')" class="px-4 py-2 rounded-lg text-xs font-bold bg-white text-charcoal-900 shadow-sm transition">
+              1. Ingesta e Indexación
+            </button>
+            <button id="tabConsultaBtn" onclick="switchCodeTab('consulta')" class="px-4 py-2 rounded-lg text-xs font-bold text-charcoal-500 hover:text-charcoal-900 transition">
+              2. Consulta y Generación
+            </button>
+          </div>
+        </div>
+
+        <!-- Bloque de Código con Botón Copiar -->
+        <div class="bg-charcoal-900 rounded-2xl overflow-hidden border border-charcoal-700">
+          <div class="flex items-center justify-between px-4 py-3 bg-[#161616] border-b border-charcoal-700">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-terracotta-500"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+              <span class="w-3 h-3 rounded-full bg-sage-600"></span>
+              <span id="codeFileName" class="ml-2 text-xs font-mono text-cream-300">ingest_pipeline.py</span>
+            </div>
+            <button onclick="copyActiveCode()" id="copyCodeBtn" class="text-xs font-mono bg-charcoal-700 hover:bg-terracotta-500 text-white px-3.5 py-1.5 rounded-lg transition flex items-center gap-1.5">
+              <span>Copiar Código</span>
+            </button>
+          </div>
+
+          <!-- Código 1: Ingesta -->
+          <pre id="codeBlockIngesta" class="p-5 text-xs sm:text-sm font-mono text-cream-100 overflow-x-auto leading-relaxed"><code><span class="text-cream-400"># pip install langchain-text-splitters chromadb openai pypdf</span>
+<span class="text-terracotta-500">import</span> chromadb
+<span class="text-terracotta-500">from</span> openai <span class="text-terracotta-500">import</span> OpenAI
+<span class="text-terracotta-500">from</span> langchain_text_splitters <span class="text-terracotta-500">import</span> RecursiveCharacterTextSplitter
+
+client = OpenAI()
+chroma_client = chromadb.PersistentClient(path=<span class="text-sage-100">"./rag_vector_db"</span>)
+collection = chroma_client.get_or_create_collection(
+    name=<span class="text-sage-100">"manual_corporativo"</span>,
+    metadata={<span class="text-sage-100">"hnsw:space"</span>: <span class="text-sage-100">"cosine"</span>}  <span class="text-cream-400"># Similitud del coseno</span>
+)
+
+<span class="text-terracotta-500">def</span> <span class="text-amber-300">ingestar_documento</span>(texto_crudo: str, nombre_archivo: str):
+    <span class="text-cream-400"># 1. Chunking recursivo respetando párrafos y oraciones</span>
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=<span class="text-amber-300">800</span>,
+        chunk_overlap=<span class="text-amber-300">120</span>,
+        separators=[<span class="text-sage-100">"\n\n"</span>, <span class="text-sage-100">"\n"</span>, <span class="text-sage-100">". "</span>, <span class="text-sage-100">" "</span>]
+    )
+    chunks = splitter.split_text(texto_crudo)
+
+    <span class="text-cream-400"># 2. Generación de Embeddings en lote (Batch)</span>
+    response = client.embeddings.create(
+        model=<span class="text-sage-100">"text-embedding-3-small"</span>,
+        input=chunks
+    )
+    vectores = [item.embedding <span class="text-terracotta-500">for</span> item <span class="text-terracotta-500">in</span> response.data]
+
+    <span class="text-cream-400"># 3. Almacenamiento con metadatos para trazabilidad y citas</span>
+    ids = [<span class="text-sage-100">f"</span>{nombre_archivo}<span class="text-sage-100">_chunk_</span>{i}<span class="text-sage-100">"</span> <span class="text-terracotta-500">for</span> i <span class="text-terracotta-500">in</span> range(len(chunks))]
+    metadatas = [{<span class="text-sage-100">"fuente"</span>: nombre_archivo, <span class="text-sage-100">"chunk_id"</span>: i} <span class="text-terracotta-500">for</span> i <span class="text-terracotta-500">in</span> range(len(chunks))]
+
+    collection.upsert(ids=ids, embeddings=vectores, documents=chunks, metadatas=metadatas)
+    print(<span class="text-sage-100">f"✅ Indexados </span>{len(chunks)}<span class="text-sage-100"> fragmentos de </span>{nombre_archivo}<span class="text-sage-100">"</span>)</code></pre>
+
+          <!-- Código 2: Consulta -->
+          <pre id="codeBlockConsulta" class="hidden p-5 text-xs sm:text-sm font-mono text-cream-100 overflow-x-auto leading-relaxed"><code><span class="text-terracotta-500">def</span> <span class="text-amber-300">consultar_rag</span>(pregunta_usuario: str, top_k: int = <span class="text-amber-300">4</span>) -> str:
+    <span class="text-cream-400"># 1. Vectorizar la pregunta con el MISMO modelo usado en la ingesta</span>
+    q_embed = client.embeddings.create(
+        model=<span class="text-sage-100">"text-embedding-3-small"</span>,
+        input=[pregunta_usuario]
+    ).data[<span class="text-amber-300">0</span>].embedding
+
+    <span class="text-cream-400"># 2. Recuperación semántica (Top-K) en la Base Vectorial</span>
+    resultados = collection.query(
+        query_embeddings=[q_embed],
+        n_results=top_k
+    )
+
+    <span class="text-cream-400"># 3. Construir contexto estructurado con citas de origen</span>
+    bloques_contexto = []
+    <span class="text-terracotta-500">for</span> doc, meta <span class="text-terracotta-500">in</span> zip(resultados[<span class="text-sage-100">"documents"</span>][<span class="text-amber-300">0</span>], resultados[<span class="text-sage-100">"metadatas"</span>][<span class="text-amber-300">0</span>]):
+        bloques_contexto.append(<span class="text-sage-100">f"[Fuente: </span>{meta['fuente']}<span class="text-sage-100"> | Fragmento #</span>{meta['chunk_id']}<span class="text-sage-100">]\n</span>{doc}<span class="text-sage-100">"</span>)
+    
+    contexto_unido = <span class="text-sage-100">"\n\n---\n\n"</span>.join(bloques_contexto)
+
+    <span class="text-cream-400"># 4. Generación Aumentada con System Prompt estricto (Temperatura 0)</span>
+    respuesta = client.chat.completions.create(
+        model=<span class="text-sage-100">"gpt-4o-mini"</span>,
+        temperature=<span class="text-amber-300">0.0</span>,
+        messages=[
+            {
+                <span class="text-sage-100">"role"</span>: <span class="text-sage-100">"system"</span>,
+                <span class="text-sage-100">"content"</span>: <span class="text-sage-100">"Responde SOLO usando el contexto dado. Cita siempre la fuente."</span>
+            },
+            {
+                <span class="text-sage-100">"role"</span>: <span class="text-sage-100">"user"</span>,
+                <span class="text-sage-100">"content"</span>: <span class="text-sage-100">f"&lt;contexto&gt;\n</span>{contexto_unido}<span class="text-sage-100">\n&lt;/contexto&gt;\n\nPregunta: </span>{pregunta_usuario}<span class="text-sage-100">"</span>
+            }
+        ]
+    )
+    <span class="text-terracotta-500">return</span> respuesta.choices[<span class="text-amber-300">0</span>].message.content</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- DIAPOSITIVA 9: TÉCNICAS AVANZADAS Y EVALUACIÓN (RAGAS)                -->
+    <!-- ===================================================================== -->
+    <section class="slide" data-title="Técnicas Avanzadas y Evaluación (RAGAS)">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Patrones Avanzados de RAG -->
+        <div class="lg:col-span-7 bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-8">
+          <span class="text-xs font-mono font-semibold uppercase tracking-wider text-terracotta-500">Nivel Experto • Evolución</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-charcoal-900 mt-1 mb-5">
+            Patrones Avanzados de RAG
+          </h2>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-4">
+              <div class="font-mono text-xs font-bold text-terracotta-500 mb-1">01. QUERY EXPANSION</div>
+              <h3 class="font-bold text-charcoal-900 text-sm mb-1.5">Multi-Query & HyDE</h3>
+              <p class="text-xs text-charcoal-700 leading-relaxed">
+                <strong>Multi-Query</strong> reescribe la pregunta del usuario desde 3 ángulos distintos. <strong>HyDE</strong> genera una respuesta hipotética ideal y usa su embedding para buscar documentos reales similares.
+              </p>
+            </div>
+
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-4">
+              <div class="font-mono text-xs font-bold text-sage-600 mb-1">02. RELACIONES COMPLEJAS</div>
+              <h3 class="font-bold text-charcoal-900 text-sm mb-1.5">GraphRAG</h3>
+              <p class="text-xs text-charcoal-700 leading-relaxed">
+                Combina vectores con <strong>Grafos de Conocimiento</strong> (Neo4j). Permite responder preguntas globales o multi-salto ("¿Qué proveedores afectan a los proyectos del Q3?") donde los chunks aislados fallan.
+              </p>
+            </div>
+
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-4">
+              <div class="font-mono text-xs font-bold text-charcoal-900 mb-1">03. AUTONOMÍA</div>
+              <h3 class="font-bold text-charcoal-900 text-sm mb-1.5">Agentic RAG</h3>
+              <p class="text-xs text-charcoal-700 leading-relaxed">
+                Un agente decide dinámicamente si necesita buscar en la Vector DB, consultar una API SQL, reformular la búsqueda si los resultados son pobres o responder directamente.
+              </p>
+            </div>
+
+            <div class="bg-cream-100 border border-cream-200 rounded-2xl p-4">
+              <div class="font-mono text-xs font-bold text-terracotta-600 mb-1">04. GRANULARIDAD</div>
+              <h3 class="font-bold text-charcoal-900 text-sm mb-1.5">Parent-Document Retrieval</h3>
+              <p class="text-xs text-charcoal-700 leading-relaxed">
+                Indexa fragmentos pequeños (150 tokens) para una búsqueda quirúrgica, pero entrega al LLM el documento o sección padre completa (1,500 tokens) para darle contexto amplio.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Métricas de Evaluación RAGAS -->
+        <div class="lg:col-span-5 bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-8 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-wider text-sage-600">Calidad Medible</span>
+            <h2 class="text-2xl font-extrabold text-charcoal-900 mt-1 mb-2">
+              Evaluación con RAGAS
+            </h2>
+            <p class="text-xs text-charcoal-500 mb-6">
+              <em>"Lo que no se mide, no se mejora."</em> El framework <strong>RAGAS</strong> evalúa la tríada del RAG usando un LLM-as-a-Judge.
+            </p>
+
+            <!-- Barras Visuales de Métricas -->
+            <div class="space-y-5">
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-charcoal-900">1. Faithfulness (Fidelidad)</span>
+                  <span class="font-mono text-sage-600">Meta: &gt; 95%</span>
+                </div>
+                <div class="w-full h-2.5 bg-cream-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-sage-600 rounded-full" style="width: 96%;"></div>
+                </div>
+                <p class="text-[11px] text-charcoal-500 mt-1">¿Todas las afirmaciones de la respuesta se derivan del contexto recuperado? (Detecta alucinaciones).</p>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-charcoal-900">2. Answer Relevance (Relevancia)</span>
+                  <span class="font-mono text-terracotta-500">Meta: &gt; 90%</span>
+                </div>
+                <div class="w-full h-2.5 bg-cream-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-terracotta-500 rounded-full" style="width: 92%;"></div>
+                </div>
+                <p class="text-[11px] text-charcoal-500 mt-1">¿La respuesta contesta directa y completamente a lo que preguntó el usuario sin irse por las ramas?</p>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                  <span class="text-charcoal-900">3. Context Precision & Recall</span>
+                  <span class="font-mono text-charcoal-900">Meta: &gt; 88%</span>
+                </div>
+                <div class="w-full h-2.5 bg-cream-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-charcoal-900 rounded-full" style="width: 89%;"></div>
+                </div>
+                <p class="text-[11px] text-charcoal-500 mt-1">¿El Retriever encontró los fragmentos correctos y los posicionó en los primeros lugares (Top-K)?</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 bg-sage-100/70 border border-sage-600/20 rounded-xl p-3.5 text-xs text-sage-700 font-medium">
+            💡 Crea un <strong>Golden Dataset</strong> de 50 preguntas reales con sus respuestas esperadas antes de cambiar modelos o tamaños de chunk.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- DIAPOSITIVA 10: CHECKLIST DE PRODUCCIÓN Y BUENAS PRÁCTICAS            -->
+    <!-- ===================================================================== -->
+    <section class="slide" data-title="Checklist de Producción y Buenas Prácticas">
+      <div class="bg-white rounded-3xl border border-cream-200 shadow-card p-6 sm:p-10">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-wider text-terracotta-500">Despliegue Final • Capítulo 10</span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-charcoal-900 mt-1">
+              Checklist de RAG en Producción
+            </h2>
+          </div>
+          <div class="bg-cream-100 border border-cream-200 px-4 py-2 rounded-2xl text-right">
+            <span class="text-xs text-charcoal-500 block">Progreso de Auditoría</span>
+            <span id="checklistScore" class="text-lg font-mono font-extrabold text-sage-600">0 / 6 Completados</span>
+          </div>
+        </div>
+
+        <p class="text-sm text-charcoal-700 mb-6">
+          Marca cada punto interactivo para validar que tu arquitectura está lista para usuarios reales sin fugas de seguridad ni degradación de calidad:
+        </p>
+
+        <!-- Lista Interactiva de Checklist -->
+        <div id="checklistGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <label class="checklist-item flex items-start gap-3.5 p-4 rounded-2xl border border-cream-200 bg-cream-50 hover:bg-cream-100 cursor-pointer transition">
+            <input type="checkbox" onchange="updateChecklist()" class="mt-1 w-4 h-4 accent-sage-600 rounded">
+            <div>
+              <span class="font-bold text-charcoal-900 text-sm block">1. Consistencia de Modelo de Embeddings</span>
+              <span class="text-xs text-charcoal-600">Usar exactamente el mismo modelo y versión en la ingesta y en la consulta (si cambias de modelo, debes reindexar todo).</span>
+            </div>
+          </label>
+
+          <label class="checklist-item flex items-start gap-3.5 p-4 rounded-2xl border border-cream-200 bg-cream-50 hover:bg-cream-100 cursor-pointer transition">
+            <input type="checkbox" onchange="updateChecklist()" class="mt-1 w-4 h-4 accent-sage-600 rounded">
+            <div>
+              <span class="font-bold text-charcoal-900 text-sm block">2. Control de Acceso por Metadatos (RBAC)</span>
+              <span class="text-xs text-charcoal-600">Filtrar vectores por <code>tenant_id</code> o <code>rol_usuario</code> ANTES de devolver resultados al LLM para evitar fugas confidenciales.</span>
+            </div>
+          </label>
+
+          <label class="checklist-item flex items-start gap-3.5 p-4 rounded-2xl border border-cream-200 bg-cream-50 hover:bg-cream-100 cursor-pointer transition">
+            <input type="checkbox" onchange="updateChecklist()" class="mt-1 w-4 h-4 accent-sage-600 rounded">
+            <div>
+              <span class="font-bold text-charcoal-900 text-sm block">3. Pipeline de Actualización Incremental</span>
+              <span class="text-xs text-charcoal-600">Eliminar vectores obsoletos cuando un documento se actualiza o borra (evitar respuestas contradictorias por versiones duplicadas).</span>
+            </div>
+          </label>
+
+          <label class="checklist-item flex items-start gap-3.5 p-4 rounded-2xl border border-cream-200 bg-cream-50 hover:bg-cream-100 cursor-pointer transition">
+            <input type="checkbox" onchange="updateChecklist()" class="mt-1 w-4 h-4 accent-sage-600 rounded">
+            <div>
+              <span class="font-bold text-charcoal-900 text-sm block">4. Umbral de Similitud Mínimo (Score Threshold)</span>
+              <span class="text-xs text-charcoal-600">Descartar chunks con similitud &lt; 0.65 para no contaminar el prompt con ruido irrelevante cuando no existe respuesta.</span>
+            </div>
+          </label>
+
+          <label class="checklist-item flex items-start gap-3.5 p-4 rounded-2xl border border-cream-200 bg-cream-50 hover:bg-cream-100 cursor-pointer transition">
+            <input type="checkbox" onchange="updateChecklist()" class="mt-1 w-4 h-4 accent-sage-600 rounded">
+            <div>
+              <span class="font-bold text-charcoal-900 text-sm block">5. Protección contra Prompt Injection Indirecto</span>
+              <span class="text-xs text-charcoal-600">Instruir al LLM para tratar el texto dentro de <code>&lt;contexto&gt;</code> únicamente como datos pasivos, nunca como comandos ejecutables.</span>
+            </div>
+          </label>
+
+          <label class="checklist-item flex items-start gap-3.5 p-4 rounded-2xl border border-cream-200 bg-cream-50 hover:bg-cream-100 cursor-pointer transition">
+            <input type="checkbox" onchange="updateChecklist()" class="mt-1 w-4 h-4 accent-sage-600 rounded">
+            <div>
+              <span class="font-bold text-charcoal-900 text-sm block">6. Observabilidad, Streaming y Caché Semántica</span>
+              <span class="text-xs text-charcoal-600">Registrar latencia por etapa, habilitar streaming de tokens en la UI y cachear preguntas frecuentes para reducir costos hasta un 40%.</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Cierre Final -->
+        <div class="bg-charcoal-900 text-cream-50 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-mono text-terracotta-500 uppercase font-bold">Manual Completado</span>
+            <h3 class="text-lg sm:text-xl font-bold mt-0.5">¡Listo para construir tu arquitectura RAG!</h3>
+            <p class="text-xs text-cream-300 mt-1">Puedes volver al índice o reiniciar la presentación en cualquier momento.</p>
+          </div>
+          <button onclick="goToSlide(0)" class="bg-terracotta-500 hover:bg-terracotta-600 text-white font-semibold text-sm px-5 py-3 rounded-xl transition shrink-0">
+            ↺ Volver a la Portada
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Barra Inferior de Controles de Presentación -->
+  <footer class="sticky bottom-0 z-40 bg-cream-100/95 backdrop-blur-md border-t border-cream-200 px-4 sm:px-8 py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
+      <button id="prevBtn" onclick="prevSlide()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-cream-200 disabled:opacity-40 disabled:pointer-events-none border border-cream-300 text-charcoal-900 font-semibold text-xs sm:text-sm transition shadow-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        <span>Anterior</span>
+      </button>
+
+      <!-- Puntos indicadores de diapositivas (Dots) -->
+      <div id="slideDots" class="hidden md:flex items-center gap-2">
+        <!-- Generados dinámicamente -->
+      </div>
+
+      <button id="nextBtn" onclick="nextSlide()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-charcoal-900 hover:bg-terracotta-500 disabled:opacity-40 disabled:pointer-events-none text-white font-semibold text-xs sm:text-sm transition shadow-sm">
+        <span>Siguiente</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  </footer>
+
+  <!-- Modal / Drawer de Índice Rápido -->
+  <div id="indexModal" class="fixed inset-0 z-50 hidden bg-charcoal-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-cream-200 shadow-2xl max-w-lg w-full p-6 sm:p-8 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-cream-200 mb-4">
+        <div>
+          <span class="text-xs font-mono font-bold text-terracotta-500 uppercase">Navegación Rápida</span>
+          <h3 class="text-xl font-extrabold text-charcoal-900">Índice del Manual RAG</h3>
+        </div>
+        <button id="closeIndexBtn" class="w-8 h-8 rounded-full bg-cream-100 hover:bg-cream-200 flex items-center justify-center text-charcoal-700 font-bold">
+          ✕
+        </button>
+      </div>
+      <div id="indexList" class="space-y-2">
+        <!-- Lista generada dinámicamente -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Notificación Toast Flotante -->
+  <div id="toast" class="fixed bottom-20 right-6 z-50 bg-charcoal-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg opacity-0 pointer-events-none transition-opacity duration-300">
+    Copiado al portapapeles
+  </div>
+
+  <!-- Lógica JavaScript de la Presentación Interactiva -->
+  <script>
+    // =========================================================================
+    // 1. GESTIÓN DE DIAPOSITIVAS Y NAVEGACIÓN
+    // =========================================================================
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    const progressBar = document.getElementById('progressBar');
+    const slideCounter = document.getElementById('slideCounter');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const slideDots = document.getElementById('slideDots');
+    const indexModal = document.getElementById('indexModal');
+    const indexList = document.getElementById('indexList');
+
+    // Inicializar puntos y menú de índice
+    function initNavigation() {
+      slideDots.innerHTML = '';
+      indexList.innerHTML = '';
+
+      slides.forEach((slide, idx) => {
+        const title = slide.getAttribute('data-title') || `Diapositiva ${idx + 1}`;
+        
+        // Dot inferior
+        const dot = document.createElement('button');
+        dot.className = `h-2.5 rounded-full transition-all duration-300 ${idx === 0 ? 'w-7 bg-terracotta-500' : 'w-2.5 bg-cream-300 hover:bg-charcoal-400'}`;
+        dot.setAttribute('aria-label', title);
+        dot.onclick = () => goToSlide(idx);
+        slideDots.appendChild(dot);
+
+        // Ítem en el Modal de Índice
+        const item = document.createElement('button');
+        item.className = 'w-full text-left px-4 py-3 rounded-xl hover:bg-cream-100 border border-transparent hover:border-cream-200 transition flex items-center gap-3';
+        item.innerHTML = `
+          <span class="font-mono text-xs font-bold px-2 py-1 rounded bg-cream-200 text-charcoal-700">${String(idx + 1).padStart(2, '0')}</span>
+          <span class="text-sm font-semibold text-charcoal-900">${title}</span>
+        `;
+        item.onclick = () => {
+          goToSlide(idx);
+          indexModal.classList.add('hidden');
+        };
+        indexList.appendChild(item);
+      });
+
+      updateUI();
+    }
+
+    function goToSlide(index) {
+      if (index < 0 || index >= totalSlides) return;
+      slides[currentSlide].classList.remove('active');
+      currentSlide = index;
+      slides[currentSlide].classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      updateUI();
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) goToSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) goToSlide(currentSlide - 1);
+    }
+
+    function updateUI() {
+      // Contador y barra de progreso
+      slideCounter.textContent = `${String(currentSlide + 1).padStart(2, '0')} / ${String(totalSlides).padStart(2, '0')}`;
+      const progressPct = ((currentSlide + 1) / totalSlides) * 100;
+      progressBar.style.width = `${progressPct}%`;
+
+      // Estado botones
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === totalSlides - 1;
+
+      // Actualizar dots
+      const dots = slideDots.querySelectorAll('button');
+      dots.forEach((dot, idx) => {
+        if (idx === currentSlide) {
+          dot.className = 'h-2.5 w-7 rounded-full bg-terracotta-500 transition-all duration-300';
+        } else {
+          dot.className = 'h-2.5 w-2.5 rounded-full bg-cream-300 hover:bg-charcoal-400 transition-all duration-300';
+        }
+      });
+    }
+
+    // Navegación con teclado (Flechas Izquierda / Derecha y Escape)
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'ArrowRight') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'Escape') indexModal.classList.add('hidden');
+    });
+
+    // Control del modal índice
+    document.getElementById('openIndexBtn').onclick = () => indexModal.classList.remove('hidden');
+    document.getElementById('closeIndexBtn').onclick = () => indexModal.classList.add('hidden');
+    indexModal.onclick = (e) => {
+      if (e.target === indexModal) indexModal.classList.add('hidden');
+    };
+
+    // =========================================================================
+    // 2. INTERACTIVIDAD DEL MAPA CONCEPTUAL (DIAPOSITIVA 3)
+    // =========================================================================
+    const conceptData = [
+      {
+        badge: 'NODO 1 DE 8 • ZONA INGESTA',
+        title: 'Fuentes de Datos (Data Sources)',
+        desc: 'Constituyen la materia prima del sistema: documentos PDF, bases de datos relacionales (SQL), páginas web, Notion o Confluence. Antes de procesarse, se extraen y limpian eliminando ruido HTML o encabezados repetitivos.',
+        tools: 'PyMuPDF, Unstructured, LlamaParse, Docling'
+      },
+      {
+        badge: 'NODO 2 DE 8 • ZONA INGESTA',
+        title: 'Chunking (Segmentación Inteligente)',
+        desc: 'Divide los documentos extensos en fragmentos manejables (ej. 500-800 tokens) con un solapamiento (overlap) del 10-15% para evitar que las ideas queden cortadas entre dos bloques.',
+        tools: 'RecursiveCharacterTextSplitter, SemanticChunker'
+      },
+      {
+        badge: 'NODO 3 DE 8 • ZONA INGESTA',
+        title: 'Embeddings (Vectorización Semántica)',
+        desc: 'Convierte cada fragmento de texto en un vector numérico multidimensional que codifica su significado. Textos con ideas afines quedan cercanos en el espacio matemático.',
+        tools: 'text-embedding-3-large, BGE-M3, Cohere Embed'
+      },
+      {
+        badge: 'NODO 4 DE 8 • MEMORIA CENTRAL',
+        title: 'Base de Datos Vectorial (Vector DB)',
+        desc: 'Almacena los vectores junto con el texto original y sus metadatos (autor, página, fecha, permisos). Utiliza índices ANN (HNSW) para recuperar vecinos cercanos en milisegundos.',
+        tools: 'Qdrant, PostgreSQL (pgvector), ChromaDB, Pinecone'
+      },
+      {
+        badge: 'NODO 5 DE 8 • ZONA INFERENCIA',
+        title: 'Retriever (Recuperador Híbrido + Re-ranker)',
+        desc: 'Transforma la pregunta del usuario en vector y busca los fragmentos más relevantes combinando similitud semántica y palabras clave (BM25), reordenándolos luego por precisión.',
+        tools: 'Hybrid Search (RRF), Cohere Rerank, BGE-Reranker'
+      },
+      {
+        badge: 'NODO 6 DE 8 • ZONA INFERENCIA',
+        title: 'Prompt Augmentation (Inyección de Contexto)',
+        desc: 'Construye dinámicamente el mensaje final para el LLM uniendo las instrucciones del sistema, los Top-K fragmentos recuperados y la pregunta original del usuario.',
+        tools: 'LangChain, LlamaIndex, Plantillas XML estructuradas'
+      },
+      {
+        badge: 'NODO 7 DE 8 • ZONA INFERENCIA',
+        title: 'Modelo de Lenguaje (LLM)',
+        desc: 'Actúa como motor de razonamiento y síntesis. Con temperatura cercana a 0, redacta una respuesta coherente basándose exclusivamente en la evidencia inyectada.',
+        tools: 'GPT-4o, Claude 3.7 Sonnet, Gemini 2.5 Pro, Llama 3.3'
+      },
+      {
+        badge: 'NODO 8 DE 8 • RESULTADO',
+        title: 'Respuesta Verificada con Citas',
+        desc: 'Entrega al usuario final una respuesta precisa, auditable y respaldada por enlaces o referencias exactas al documento y página de origen, eliminando alucinaciones.',
+        tools: 'UI con citas clicables + Evaluación con RAGAS'
+      }
+    ];
+
+    function selectConcept(idx) {
+      const item = conceptData[idx];
+      document.getElementById('conceptBadge').textContent = item.badge;
+      document.getElementById('conceptTitle').textContent = item.title;
+      document.getElementById('conceptDesc').textContent = item.desc;
+      document.getElementById('conceptTools').textContent = item.tools;
+    }
+
+    // =========================================================================
+    // 3. SIMULADOR INTERACTIVO DE CHUNKING (DIAPOSITIVA 5)
+    // =========================================================================
+    const samplePolicyText = "La política de reembolsos de la compañía establece que todo cliente dispone de 30 días naturales desde la fecha de compra para solicitar la devolución íntegra del importe. Para tramitar el reembolso, el producto debe conservar su embalaje original y el recibo digital. Los reembolsos aprobados se abonan en el método de pago original en un plazo máximo de 5 días hábiles.";
+
+    const chunkSizeSlider = document.getElementById('chunkSizeSlider');
+    const chunkOverlapSlider = document.getElementById('chunkOverlapSlider');
+    const chunkSizeVal = document.getElementById('chunkSizeVal');
+    const chunkOverlapVal = document.getElementById('chunkOverlapVal');
+    const chunkPreviewContainer = document.getElementById('chunkPreviewContainer');
+
+    function renderChunks() {
+      const size = parseInt(chunkSizeSlider.value, 10);
+      let overlap = parseInt(chunkOverlapSlider.value, 10);
+      if (overlap >= size) {
+        overlap = Math.floor(size / 3);
+        chunkOverlapSlider.value = overlap;
+      }
+
+      chunkSizeVal.textContent = size;
+      chunkOverlapVal.textContent = overlap;
+
+      const step = Math.max(10, size - overlap);
+      const chunks = [];
+      for (let i = 0; i < samplePolicyText.length; i += step) {
+        chunks.push(samplePolicyText.slice(i, i + size));
+        if (i + size >= samplePolicyText.length) break;
+      }
+
+      chunkPreviewContainer.innerHTML = chunks.map((chunk, idx) => {
+        const hasOverlap = idx > 0 && overlap > 0;
+        const overlapPart = hasOverlap ? chunk.slice(0, overlap) : '';
+        const mainPart = hasOverlap ? chunk.slice(overlap) : chunk;
+
+        return `
+          <div class="bg-white border border-cream-200 rounded-xl p-3.5 text-xs shadow-sm">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono font-bold text-charcoal-900">Chunk #${idx + 1}</span>
+              <span class="font-mono text-[11px] text-charcoal-400">${chunk.length} caracteres ${hasOverlap ? `• <span class="text-sage-600 font-semibold">${overlap} chars solapados</span>` : ''}</span>
+            </div>
+            <p class="font-mono text-charcoal-700 leading-relaxed break-words">
+              ${hasOverlap ? `<span class="bg-sage-100 text-sage-700 px-1 rounded font-semibold" title="Texto compartido con el chunk anterior">${overlapPart}</span>` : ''}${mainPart}
+            </p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    chunkSizeSlider.addEventListener('input', renderChunks);
+    chunkOverlapSlider.addEventListener('input', renderChunks);
+
+    // =========================================================================
+    // 4. PESTAÑAS DE CÓDIGO Y COPIADO AL PORTAPAPELES (DIAPOSITIVAS 7 Y 8)
+    // =========================================================================
+    let activeCodeTab = 'ingesta';
+
+    function switchCodeTab(tab) {
+      activeCodeTab = tab;
+      const tabIngestaBtn = document.getElementById('tabIngestaBtn');
+      const tabConsultaBtn = document.getElementById('tabConsultaBtn');
+      const codeBlockIngesta = document.getElementById('codeBlockIngesta');
+      const codeBlockConsulta = document.getElementById('codeBlockConsulta');
+      const codeFileName = document.getElementById('codeFileName');
+
+      if (tab === 'ingesta') {
+        tabIngestaBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold bg-white text-charcoal-900 shadow-sm transition';
+        tabConsultaBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold text-charcoal-500 hover:text-charcoal-900 transition';
+        codeBlockIngesta.classList.remove('hidden');
+        codeBlockConsulta.classList.add('hidden');
+        codeFileName.textContent = 'ingest_pipeline.py';
+      } else {
+        tabConsultaBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold bg-white text-charcoal-900 shadow-sm transition';
+        tabIngestaBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold text-charcoal-500 hover:text-charcoal-900 transition';
+        codeBlockConsulta.classList.remove('hidden');
+        codeBlockIngesta.classList.add('hidden');
+        codeFileName.textContent = 'query_pipeline.py';
+      }
+    }
+
+    function copyTextFallback(text, message) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast(message);
+      } catch (err) {
+        showToast('No se pudo copiar el texto');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function copyActiveCode() {
+      const codeEl = activeCodeTab === 'ingesta'
+        ? document.getElementById('codeBlockIngesta')
+        : document.getElementById('codeBlockConsulta');
+      copyTextFallback(codeEl.innerText, '✓ Código Python copiado al portapapeles');
+    }
+
+    function copyPromptTemplate() {
+      const promptText = document.getElementById('systemPromptText').innerText;
+      copyTextFallback(promptText, '✓ System Prompt copiado al portapapeles');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('opacity-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+      }, 2400);
+    }
+
+    // =========================================================================
+    // 5. CHECKLIST INTERACTIVO DE PRODUCCIÓN (DIAPOSITIVA 10)
+    // =========================================================================
+    function updateChecklist() {
+      const checkboxes = document.querySelectorAll('#checklistGrid input[type="checkbox"]');
+      const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+      document.getElementById('checklistScore').textContent = `${checkedCount} / ${checkboxes.length} Completados`;
+
+      checkboxes.forEach(cb => {
+        const card = cb.closest('.checklist-item');
+        if (cb.checked) {
+          card.classList.add('bg-sage-100/60', 'border-sage-600/40');
+          card.classList.remove('bg-cream-50', 'border-cream-200');
+        } else {
+          card.classList.remove('bg-sage-100/60', 'border-sage-600/40');
+          card.classList.add('bg-cream-50', 'border-cream-200');
+        }
+      });
+    }
+
+    // Inicializar al cargar la página
+    window.addEventListener('DOMContentLoaded', () => {
+      initNavigation();
+      renderChunks();
+    });
+  </script>
+</body>
+</html>

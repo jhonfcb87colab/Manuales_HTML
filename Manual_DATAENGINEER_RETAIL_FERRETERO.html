@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Ingeniería de Datos: Kafka y Airflow en Retail Ferretero</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter & Fira Code -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mermaid.js for Diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'Fira Code', monospace; }
+        .slide { display: none; }
+        .slide.active { display: flex; animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-[#FDFBF7] text-[#3D3832] h-full flex flex-col justify-between selection:bg-[#E8DCC4] selection:text-[#2C2621]">
+
+    <!-- Header / Navbar -->
+    <header class="w-full bg-[#F4EFE6] border-b border-[#E3DAC9] px-6 py-4 flex items-center justify-between shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="bg-[#C27803] text-white p-2.5 rounded-xl shadow-sm">
+                <i class="fa-solid fa-screwdriver-wrench text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg tracking-tight text-[#2C2621]">FerreData Enterprise</h1>
+                <p class="text-xs text-[#7A7067]">Manual Arquitectura de Datos: Kafka & Airflow en Retail</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span id="slide-indicator" class="text-xs font-semibold uppercase tracking-widest bg-[#E8DCC4] px-3 py-1 rounded-full text-[#594F45]">
+                Diapositiva 1 / 6
+            </span>
+            <div class="space-x-1">
+                <button onclick="prevSlide()" class="p-2 rounded-lg bg-[#EAE3D2] hover:bg-[#DFD5C0] text-[#3D3832] transition disabled:opacity-40" id="prev-btn" title="Anterior">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <button onclick="nextSlide()" class="p-2 rounded-lg bg-[#3D3832] hover:bg-[#2C2621] text-[#FDFBF7] transition disabled:opacity-40" id="next-btn" title="Siguiente">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Presentation Container -->
+    <main class="flex-1 overflow-y-auto p-6 md:p-10 flex flex-col justify-center items-center max-w-6xl mx-auto w-full">
+
+        <!-- Slide 1: Introducción y Contexto -->
+        <section class="slide active flex-col w-full h-full justify-between space-y-6" data-slide="1">
+            <div class="space-y-4 max-w-3xl">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#B26B00] bg-[#FAEDCD] px-3 py-1 rounded-md border border-[#F3E2B8]">Módulo 1 · Fundamentos</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#2C2621] tracking-tight">Arquitectura de Datos para Retail de Ferretería</h2>
+                <p class="text-[#635B52] text-base leading-relaxed">
+                    Las empresas de ferretería y venta de herramientas manejan complejidades operativas únicas: miles de SKUs con atributos técnicos especializados, múltiples sucursales físicas, bodegas centrales, ventas omnicanal y fluctuaciones estacionales en inventarios de tornillería, maquinaria pesada y materiales de construcción.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 w-full my-4">
+                <div class="bg-[#F4EFE6] p-5 rounded-2xl border border-[#E8DCC4] shadow-sm space-y-2">
+                    <div class="text-[#B26B00] text-xl"><i class="fa-solid fa-cash-register"></i></div>
+                    <h3 class="font-bold text-[#2C2621]">POS en Tiempo Real</h3>
+                    <p class="text-xs text-[#7A7067]">Captura instantánea de transacciones de caja en cada sucursal mediante streaming con Apache Kafka.</p>
+                </div>
+                <div class="bg-[#F4EFE6] p-5 rounded-2xl border border-[#E8DCC4] shadow-sm space-y-2">
+                    <div class="text-[#B26B00] text-xl"><i class="fa-solid fa-boxes-stacked"></i></div>
+                    <h3 class="font-bold text-[#2C2621]">Inventario Multi-Sucursal</h3>
+                    <p class="text-xs text-[#7A7067]">Sincronización de stock de herramientas y alertas de reabastecimiento automático entre bodegas y tiendas.</p>
+                </div>
+                <div class="bg-[#F4EFE6] p-5 rounded-2xl border border-[#E8DCC4] shadow-sm space-y-2">
+                    <div class="text-[#B26B00] text-xl"><i class="fa-solid fa-network-wired"></i></div>
+                    <h3 class="font-bold text-[#2C2621]">Orquestación Nocturna</h3>
+                    <p class="text-xs text-[#7A7067]">Consolidación ETL, cálculo de márgenes y reportes gerenciales automatizados con Apache Airflow.</p>
+                </div>
+            </div>
+
+            <div class="bg-[#FAF7F0] border-l-4 border-[#C27803] p-4 rounded-r-xl text-xs text-[#594F45]">
+                <strong class="font-semibold">Objetivo del Manual:</strong> Proveer la guía técnica de implementación enterprise para desplegar pipelines resilientes, tolerantes a fallos y escalables para el sector ferretero.
+            </div>
+        </section>
+
+        <!-- Slide 2: Mapa Conceptual Interactivo -->
+        <section class="slide flex-col w-full h-full justify-between space-y-4" data-slide="2">
+            <div class="space-y-2 max-w-3xl">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#B26B00] bg-[#FAEDCD] px-3 py-1 rounded-md border border-[#F3E2B8]">Módulo 2 · Ecosistema Técnico</span>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-[#2C2621] tracking-tight">Mapa Conceptual: Arquitectura de Datos Ferretera</h2>
+                <p class="text-[#635B52] text-sm">Relación integral entre las fuentes operativas (POS, ERP, E-commerce), las capas de streaming/orquestación y el consumo analítico.</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-[#E8DCC4] shadow-sm flex justify-center items-center overflow-x-auto w-full flex-1">
+                <div class="mermaid">
+                    graph TD
+                        subgraph Fuentes [Fuentes de Datos Retail]
+                            POS[POS Tiendas Físicas] -->|Eventos JSON| Kafka
+                            ERP[ERP SAP/Odoo Stock] -->|Batch / CDC| Kafka
+                            WEB[E-commerce Ferretería] -->|Clicks & Órdenes| Kafka
+                        end
+
+                        subgraph Streaming [Capa de Tiempo Real - Apache Kafka]
+                            Kafka[Apache Kafka Cluster] -->|Tópico: ventas-pos| SparkStream[Procesamiento Spark Streaming]
+                            Kafka -->|Tópico: stock-cambios| AlertSvc[Servicio Alertas Stock]
+                        end
+
+                        subgraph Almacenamiento [Data Lakehouse / DWH]
+                            SparkStream -->|Iceberg / Parquet| DataLake[(Data Lake S3)]
+                            Postgres[(Data Warehouse OLAP)]
+                        end
+
+                        subgraph Orquestacion [Capa Batch - Apache Airflow]
+                            Airflow[Apache Airflow Scheduler] -->|DAG ETL Nocturno| ETL[Extracción, Transformación & Carga]
+                            ETL --> Postgres
+                            Airflow -->|Reporte Ventas| BI[PowerBI / Dashboards]
+                        end
+
+                        classDef default fill:#F4EFE6,stroke:#D3C5B4,stroke-width:2px,color:#2C2621;
+                        classDef kafka fill:#FAEDCD,stroke:#C27803,stroke-width:2px,color:#2C2621;
+                        classDef airflow fill:#E2E8F0,stroke:#3B82F6,stroke-width:2px,color:#2C2621;
+                        class Kafka kafka;
+                        class Airflow airflow;
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: Diagrama de Flujo del Proceso -->
+        <section class="slide flex-col w-full h-full justify-between space-y-4" data-slide="3">
+            <div class="space-y-2 max-w-3xl">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#B26B00] bg-[#FAEDCD] px-3 py-1 rounded-md border border-[#F3E2B8]">Módulo 3 · Flujo Operativo</span>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-[#2C2621] tracking-tight">Diagrama de Flujo: Transacción de Venta y Reabastecimiento</h2>
+                <p class="text-[#635B52] text-sm">Secuencia de eventos desde que un cliente adquiere una herramienta en caja hasta la actualización del inventario y consolidación nocturna.</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-[#E8DCC4] shadow-sm flex justify-center items-center overflow-x-auto w-full flex-1">
+                <div class="mermaid">
+                    sequenceDiagram
+                        autonumber
+                        actor Cliente as Cliente Ferretería
+                        participant POS as Terminal POS Sucursal
+                        participant Kafka as Apache Kafka (ventas-pos)
+                        participant Consumer as Microservicio Stock
+                        participant DB as Base de Datos DWH
+                        participant Airflow as Apache Airflow DAG
+
+                        Cliente->>POS: Compra Taladro Percutor Profesional
+                        POS->>Kafka: Produce Evento JSON (sku: "TLD-99", qty: 1, store: "SUC-02")
+                        Kafka->>Consumer: Lee evento en tiempo real
+                        Consumer->>DB: Actualiza stock local (Stock = Stock - 1)
+                        Note over Kafka,DB: Streaming activo 24/7 para evitar quiebres de inventario
+                        
+                        rect rgb(244, 239, 230)
+                            Airflow->>DB: Ejecuta DAG a las 02:00 AM (Consolidación Diaria)
+                            DB->>DB: Agrega ventas por sucursal, categoría y margen de ganancia
+                            DB-->>Airflow: Carga completada y métricas listas para Gerencia
+                        end
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: Configuración de Apache Kafka -->
+        <section class="slide flex-col w-full h-full justify-between space-y-4" data-slide="4">
+            <div class="space-y-2 max-w-3xl">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#B26B00] bg-[#FAEDCD] px-3 py-1 rounded-md border border-[#F3E2B8]">Módulo 4 · Streaming Config</span>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-[#2C2621] tracking-tight">Paso a Paso: Configuración de Apache Kafka</h2>
+                <p class="text-[#635B52] text-xs">Despliegue de infraestructura Kafka mediante Docker Compose y creación de tópicos para transacciones de ferretería.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full flex-1 overflow-hidden">
+                <div class="bg-[#2C2621] text-[#FDFBF7] p-4 rounded-2xl shadow-inner overflow-y-auto text-xs space-y-3 font-mono">
+                    <div class="flex items-center justify-between border-b border-[#4A413B] pb-2 text-[#E8DCC4]">
+                        <span>docker-compose.kafka.yml</span>
+                        <span class="text-[10px] bg-[#C27803] px-2 py-0.5 rounded text-white font-sans font-semibold">YAML</span>
+                    </div>
+                    <pre class="text-[11px] leading-relaxed text-[#E3DAC9]">version: '3.8'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1</pre>
+                </div>
+
+                <div class="bg-[#F4EFE6] p-4 rounded-2xl border border-[#E8DCC4] flex flex-col justify-between text-xs space-y-3">
+                    <h3 class="font-bold text-[#2C2621] text-sm"><i class="fa-solid fa-terminal text-[#C27803] mr-1"></i> Creación de Tópicos para Herramientas</h3>
+                    <p class="text-[#635B52] leading-relaxed">
+                        Una vez levantado el clúster con <code>docker compose -f docker-compose.kafka.yml up -d</code>, debemos crear el tópico central para las ventas de las sucursales:
+                    </p>
+                    <div class="bg-white p-3 rounded-xl border border-[#E3DAC9] font-mono text-[11px] text-[#2C2621]">
+                        docker exec -it kafka kafka-topics \<br>
+                        &nbsp;&nbsp;--create --topic ventas-ferreteria-pos \<br>
+                        &nbsp;&nbsp;--bootstrap-server localhost:9092 \<br>
+                        &nbsp;&nbsp;--partitions 3 --replication-factor 1
+                    </div>
+                    <p class="text-[#7A7067] text-[11px]">
+                        Esto garantiza particionamiento por sucursal, permitiendo escalar el consumo concurrente de eventos de ventas de taladros, tornillería y pinturas.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Configuración de Apache Airflow -->
+        <section class="slide flex-col w-full h-full justify-between space-y-4" data-slide="5">
+            <div class="space-y-2 max-w-3xl">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#B26B00] bg-[#FAEDCD] px-3 py-1 rounded-md border border-[#F3E2B8]">Módulo 5 · Orquestación Batch</span>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-[#2C2621] tracking-tight">Paso a Paso: Configuración y DAGs de Apache Airflow</h2>
+                <p class="text-[#635B52] text-xs">Diseño del flujo ETL nocturno para consolidar inventario y calcular rotación de herramientas por categoría.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full flex-1 overflow-hidden">
+                <div class="bg-[#2C2621] text-[#FDFBF7] p-4 rounded-2xl shadow-inner overflow-y-auto text-xs space-y-3 font-mono">
+                    <div class="flex items-center justify-between border-b border-[#4A413B] pb-2 text-[#E8DCC4]">
+                        <span>etl_inventario_ferreteria.py</span>
+                        <span class="text-[10px] bg-[#3B82F6] px-2 py-0.5 rounded text-white font-sans font-semibold">Python DAG</span>
+                    </div>
+                    <pre class="text-[10px] leading-relaxed text-[#E3DAC9]">from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime, timedelta
+
+def consolidar_inventario_sucursales():
+    print("Extrayendo ventas del día y calculando stock...")
+    # Lógica de conexión a PostgreSQL y actualización DWH
+    print("¡Consolidación de herramientas exitosa!")
+
+default_args = {
+    'owner': 'data_engineer_retail',
+    'retries': 2,
+    'retry_delay': timedelta(minutes=5),
+}
+
+with DAG(
+    'etl_nocturno_ferreteria',
+    default_args=default_args,
+    schedule_interval='0 2 * * *', # Diario a las 2 AM
+    start_date=datetime(2026, 1, 1),
+    catchup=False
+) as dag:
+    t_consolidar = PythonOperator(
+        task_id='task_consolidar_inventario',
+        python_callable=consolidar_inventario_sucursales
+    )</pre>
+                </div>
+
+                <div class="bg-[#F4EFE6] p-4 rounded-2xl border border-[#E8DCC4] flex flex-col justify-between text-xs space-y-3">
+                    <h3 class="font-bold text-[#2C2621] text-sm"><i class="fa-solid fa-calendar-days text-[#C27803] mr-1"></i> Orquestación y Buenas Prácticas</h3>
+                    <ul class="space-y-2 text-[#635B52] list-disc list-inside">
+                        <li><strong class="text-[#2C2621]">Idempotencia:</strong> Los DAGs están diseñados para re-ejecutarse sin duplicar registros de ventas en caso de fallos de red.</li>
+                        <li><strong class="text-[#2C2621]">Monitoreo de Alertas:</strong> Integración con Webhooks para notificar quiebres de stock críticos en herramientas de alta demanda al equipo de logística.</li>
+                        <li><strong class="text-[#2C2621]">Aislamiento:</strong> Ejecución de tareas mediante contenedores DockerOperator para mantener dependencias limpias por sucursal.</li>
+                    </ul>
+                    <div class="bg-[#FAF7F0] p-3 rounded-xl border border-[#E3DAC9] text-[11px] text-[#594F45]">
+                        <i class="fa-solid fa-circle-info text-[#C27803] mr-1"></i> <strong>Tip Pro:</strong> Utiliza variables de Airflow para gestionar credenciales de bases de datos de cada tienda de manera segura.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: Resumen y Despliegue Producción -->
+        <section class="slide flex-col w-full h-full justify-between space-y-4" data-slide="6">
+            <div class="space-y-2 max-w-3xl">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#B26B00] bg-[#FAEDCD] px-3 py-1 rounded-md border border-[#F3E2B8]">Módulo 6 · Conclusión</span>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-[#2C2621] tracking-tight">Despliegue y Prácticas de Ingeniería</h2>
+                <p class="text-[#635B52] text-xs">Resumen del stack tecnológico listo para producción en el sector de retail ferretero.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full my-2">
+                <div class="bg-[#F4EFE6] p-4 rounded-2xl border border-[#E8DCC4] shadow-sm space-y-2">
+                    <div class="text-[#C27803] text-lg font-bold">01. Monitoreo</div>
+                    <p class="text-xs text-[#7A7067]">Implementar Prometheus y Grafana para observar la latencia de eventos en Kafka y el estado de los DAGs en Airflow.</p>
+                </div>
+                <div class="bg-[#F4EFE6] p-4 rounded-2xl border border-[#E8DCC4] shadow-sm space-y-2">
+                    <div class="text-[#C27803] text-lg font-bold">02. Escalabilidad</div>
+                    <p class="text-xs text-[#7A7067]">Uso de Kubernetes (K8s) para escalar los consumidores de Kafka durante temporadas de alta demanda (ej. remodelaciones y ferias de construcción).</p>
+                </div>
+                <div class="bg-[#F4EFE6] p-4 rounded-2xl border border-[#E8DCC4] shadow-sm space-y-2">
+                    <div class="text-[#C27803] text-lg font-bold">03. Gobernanza</div>
+                    <p class="text-xs text-[#7A7067]">Uso de Confluent Schema Registry para validar esquemas JSON/Avro estrictos en los eventos de ventas de herramientas.</p>
+                </div>
+            </div>
+
+            <div class="bg-[#2C2621] text-[#FDFBF7] p-4 rounded-2xl flex items-center justify-between text-xs">
+                <div>
+                    <p class="font-bold text-[#E8DCC4]">Manual completado con éxito</p>
+                    <p class="text-[#A39B90] text-[11px]">Listo para ser exportado, compartido o implementado en la infraestructura de la empresa.</p>
+                </div>
+                <button onclick="currentSlide = 0; showSlide(0);" class="bg-[#C27803] hover:bg-[#A66502] text-white px-4 py-2 rounded-xl transition font-semibold text-xs shadow">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Reiniciar Manual
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer / Slide Controls Navigation script -->
+    <footer class="w-full bg-[#F4EFE6] border-t border-[#E3DAC9] px-6 py-3 flex items-center justify-between text-xs text-[#7A7067]">
+        <div>FerreData Architecture v1.0 · Sector Retail Ferretería</div>
+        <div class="flex space-x-2">
+            <span>Usa las flechas superiores o navega fluidamente.</span>
+        </div>
+    </footer>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const indicator = document.getElementById('slide-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+            indicator.textContent = `Diapositiva ${index + 1} / ${slides.length}`;
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === slides.length - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        // Initialize state
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
