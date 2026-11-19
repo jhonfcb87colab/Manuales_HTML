@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIR_MT_ETL_ESTANDAR — Envíos Movilizados GETP v2 | PBI-01</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --primary:#00b0f0;--primary-dark:#0072b1;--primary-light:#e6f7fd;--secondary:#005a8c;
+  --bg-main:#f8fafc;--bg-card:#ffffff;--bg-sidebar:#0f172a;
+  --text-main:#1e293b;--text-muted:#64748b;--border:#e2e8f0;
+  --success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;
+  --code-bg:#1e293b;--code-text:#e2e8f0;--radius:12px;--shadow:0 1px 4px rgba(0,0,0,.06);
+}
+[data-theme="dark"]{
+  --bg-main:#0b1120;--bg-card:#1e293b;--bg-sidebar:#070d17;
+  --text-main:#f1f5f9;--text-muted:#94a3b8;--border:#334155;--primary-light:#0d2a3a;
+  --shadow:0 1px 6px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);min-height:100vh}
+/* ---------- SIDEBAR ---------- */
+.sidebar{width:290px;background:var(--bg-sidebar);color:#cbd5e1;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:120;transition:transform .3s;display:flex;flex-direction:column}
+.brand{padding:20px 16px;border-bottom:1px solid #1e3a5f}
+.brand-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#00b0f0,#005a8c);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}
+.brand-title{font-size:13px;font-weight:700;color:#f1f5f9;line-height:1.3}
+.brand-sub{font-size:10px;color:#64748b;margin-top:4px;letter-spacing:.4px}
+.sidebar-controls{padding:10px 12px;border-bottom:1px solid #1e3a5f;display:flex;gap:6px;flex-wrap:wrap}
+.sidebar-controls button{background:#1e3a5f;border:none;color:#94a3b8;font-size:10.5px;padding:5px 9px;border-radius:5px;cursor:pointer;font-family:inherit}
+.sidebar-controls button:hover{background:var(--primary);color:#fff}
+.tree-nav{padding:10px 0 24px;flex:1}
+.tree-node{user-select:none}
+.tree-parent{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;font-size:11.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px}
+.tree-parent:hover{color:var(--primary)}
+.tree-arrow{font-size:9px;transition:transform .2s;display:inline-block}
+.tree-arrow.open{transform:rotate(90deg)}
+.tree-children{display:none;padding-left:14px;border-left:1px solid #1e3a5f;margin-left:22px}
+.tree-children.open{display:block}
+.tree-leaf{display:block;padding:6px 10px;font-size:11.5px;color:#64748b;text-decoration:none;border-left:2px solid transparent;cursor:pointer;line-height:1.35}
+.tree-leaf:hover,.tree-leaf.active{color:var(--primary);border-left-color:var(--primary);background:#0d2a3a}
+.tree-sub{font-weight:600;color:#7c93ad}
+/* ---------- HEADER ---------- */
+.top-header{position:fixed;top:0;left:290px;right:0;height:56px;background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;z-index:100;box-shadow:var(--shadow)}
+.search-box{flex:1;max-width:330px;position:relative}
+.search-box input{width:100%;padding:7px 12px 7px 32px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;background:var(--bg-main);color:var(--text-main);outline:none;font-family:inherit}
+.search-box::before{content:'🔍';position:absolute;left:10px;top:7px;font-size:13px}
+.header-actions{display:flex;gap:7px;margin-left:auto;align-items:center}
+.btn{padding:6px 13px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .2s}
+.btn-outline{background:transparent;border:1px solid var(--primary);color:var(--primary)}
+.btn-outline:hover{background:var(--primary-light)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-ghost{background:var(--bg-main);border:1px solid var(--border);color:var(--text-muted)}
+.hamburger{display:none;background:var(--bg-main);border:1px solid var(--border);border-radius:7px;padding:6px 9px;cursor:pointer;font-size:14px}
+/* ---------- MAIN ---------- */
+.main-content{margin-left:290px;margin-top:56px;padding:30px;min-height:calc(100vh - 56px)}
+/* HERO */
+.hero-banner{background:linear-gradient(135deg,#0f172a 0%,#0d2a3a 60%,#0a3d5c 100%);border-radius:16px;padding:38px;margin-bottom:28px;color:#fff;position:relative;overflow:hidden}
+.hero-banner::before{content:'';position:absolute;top:-60px;right:-60px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(0,176,240,.16),transparent 70%)}
+.hero-tag{display:inline-block;background:rgba(0,176,240,.2);color:#00b0f0;border:1px solid rgba(0,176,240,.4);border-radius:20px;padding:4px 14px;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+.hero-banner h1{font-size:25px;font-weight:800;line-height:1.3;margin-bottom:10px}
+.hero-banner p{font-size:13.5px;color:#94a3b8;max-width:760px;line-height:1.65}
+.hero-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-top:26px}
+.metric-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px;cursor:pointer;position:relative;transition:background .2s}
+.metric-card:hover{background:rgba(0,176,240,.16)}
+.metric-val{font-size:20px;font-weight:800;color:#00b0f0}
+.metric-lbl{font-size:10.5px;color:#94a3b8;margin-top:4px;line-height:1.4}
+.metric-icon{position:absolute;top:10px;right:12px;font-size:14px;opacity:.8}
+.kpi-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:0;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px 14px;font-size:11.5px;color:#e2e8f0;min-width:230px;max-width:300px;z-index:210;box-shadow:0 10px 28px rgba(0,0,0,.45);line-height:1.6}
+.metric-card:hover .kpi-tooltip,.metric-card:focus .kpi-tooltip{display:block}
+/* SECTIONS */
+.doc-section{background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:20px;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:70px}
+.section-header{display:flex;align-items:center;gap:12px;padding:16px 22px;cursor:pointer;user-select:none;transition:background .2s}
+.section-header:hover{background:var(--primary-light)}
+.sec-num{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-title{flex:1;font-size:14.5px;font-weight:700}
+.sec-badge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-orange{background:#fef3c7;color:#92400e}
+.badge-new{background:#00b0f0;color:#032b3b}
+.badge-mod{background:#f59e0b;color:#3b2503}
+.section-toggle{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;color:var(--text-muted);font-family:inherit;white-space:nowrap}
+.section-toggle:hover{border-color:var(--primary);color:var(--primary)}
+.section-body{padding:22px}
+.section-body.collapsed{display:none}
+.section-body.collapsed + .collapsed-summary{display:block}
+.collapsed-summary{display:none;padding:12px 22px;font-size:11.5px;color:var(--text-muted);border-top:1px dashed var(--border)}
+h2{font-size:16.5px;font-weight:700;margin:20px 0 10px}
+h3{font-size:13.5px;font-weight:700;margin:16px 0 8px;color:var(--primary-dark)}
+p{font-size:13px;line-height:1.7;margin-bottom:10px}
+ul,ol{font-size:13px;line-height:1.8;padding-left:20px;margin-bottom:10px}
+code{font-family:'Fira Code',monospace;font-size:11.8px;background:var(--primary-light);color:var(--primary-dark);padding:1px 5px;border-radius:4px}
+strong{font-weight:700}
+/* TABLES */
+.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);margin:12px 0}
+.data-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.data-table th{background:var(--primary);color:#032b3b;padding:9px 12px;text-align:left;font-weight:700;font-size:11.5px;white-space:nowrap}
+[data-theme="dark"] .data-table th{background:var(--primary-dark);color:#fff}
+.data-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.55}
+.data-table tr:nth-child(even) td{background:var(--primary-light)}
+.data-table tr:hover td{background:#e0f4fb}
+[data-theme="dark"] .data-table tr:hover td{background:#0d2a3a}
+/* CODE */
+.code-block{background:var(--code-bg);color:var(--code-text);font-family:'Fira Code','Consolas',monospace;font-size:11.5px;padding:15px 18px;border-radius:10px;overflow-x:auto;line-height:1.7;margin:12px 0;border:1px solid #334155;white-space:pre}
+.code-block .kw{color:#60a5fa}.code-block .str{color:#a3e635}.code-block .cm{color:#64748b;font-style:italic}.code-block .fn{color:#f9a825}
+/* DIAGRAMS */
+.diagram-wrap{background:var(--bg-main);border:1px solid var(--border);border-radius:10px;padding:18px;margin:14px 0;text-align:center;position:relative;cursor:zoom-in}
+.diagram-label{font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.zoom-hint{position:absolute;top:9px;right:9px;background:rgba(0,176,240,.15);color:var(--primary);font-size:9.5px;padding:3px 8px;border-radius:10px;border:1px solid rgba(0,176,240,.3);z-index:2}
+.mermaid{overflow-x:auto}
+/* ACCORDION */
+.accordion-group{margin:10px 0}
+.accordion-item{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;background:var(--bg-card)}
+.accordion-trigger{padding:11px 15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;font-weight:600;user-select:none}
+.accordion-trigger:hover{background:var(--primary-light)}
+.accordion-arrow{font-size:10px;transition:transform .2s}
+.accordion-trigger.open .accordion-arrow{transform:rotate(90deg)}
+.accordion-body{display:none;padding:14px 16px;border-top:1px solid var(--border);font-size:12.8px;line-height:1.7}
+.accordion-body.open{display:block}
+/* BOXES */
+.evidence-box{display:flex;flex-direction:column;gap:4px;background:#fef3c7;border:1px dashed #f59e0b;border-radius:8px;padding:11px 15px;font-size:11.5px;color:#92400e;margin:10px 0}
+.evidence-box strong{font-size:11.5px}
+[data-theme="dark"] .evidence-box{background:#3b2b06;color:#fbbf24;border-color:#b45309}
+.info-box{border-radius:8px;padding:12px 15px;margin:10px 0;font-size:12.5px;line-height:1.65}
+.info-box.info{background:#dbeafe;border-left:4px solid var(--info);color:#1e3a5f}
+.info-box.success{background:#d1fae5;border-left:4px solid var(--success);color:#064e3b}
+.info-box.warning{background:#fef3c7;border-left:4px solid var(--warning);color:#78350f}
+.info-box.danger{background:#fee2e2;border-left:4px solid var(--danger);color:#7f1d1d}
+[data-theme="dark"] .info-box{background:#0d2a3a;color:#cbd5e1}
+/* CHIPS */
+.chip{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;margin:1px 2px}
+.chip-blue{background:#dbeafe;color:#1d4ed8}
+.chip-green{background:#d1fae5;color:#065f46}
+.chip-orange{background:#fef3c7;color:#92400e}
+/* CA */
+.ca-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px;margin:14px 0}
+.ca-card{border:1px solid var(--border);border-radius:10px;padding:14px 15px;background:var(--bg-card)}
+.ca-id{font-size:10.5px;font-weight:800;color:var(--primary);letter-spacing:.5px}
+.ca-title{font-size:12.5px;font-weight:700;margin:4px 0}
+.ca-desc{font-size:11.5px;color:var(--text-muted);line-height:1.55}
+.ca-status{display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:7px}
+.status-ok{background:#d1fae5;color:#065f46}
+/* TRAZA */
+.traza-step{display:flex;gap:13px;padding:11px 0;border-bottom:1px solid var(--border)}
+.traza-step:last-child{border-bottom:none}
+.traza-icon{font-size:18px;flex-shrink:0}
+.traza-info strong{font-size:12.5px;display:block;margin-bottom:2px}
+.traza-info span{font-size:11.8px;color:var(--text-muted);line-height:1.6}
+/* FOOTER */
+.doc-footer{text-align:center;padding:28px 0 10px;color:var(--text-muted);font-size:11.5px;border-top:1px solid var(--border);margin-top:18px}
+/* LIGHTBOX */
+#zoomModal{display:none;position:fixed;inset:0;background:rgba(2,6,23,.82);backdrop-filter:blur(6px);z-index:999;padding:24px}
+#zoomModal.open{display:flex;flex-direction:column}
+#zoomContent{flex:1;position:relative;background:var(--bg-card);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.zoom-toolbar{display:flex;gap:7px;padding:10px 14px;border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap;background:var(--bg-card)}
+.zoom-btn{background:var(--bg-main);border:1px solid var(--border);border-radius:7px;padding:5px 11px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--text-main)}
+.zoom-btn:hover{border-color:var(--primary);color:var(--primary)}
+#zoomInner{flex:1;overflow:auto;padding:20px;transform-origin:top left;cursor:grab}
+#zoomInner.grabbing{cursor:grabbing}
+.zoom-caption{margin-left:auto;font-size:10.5px;color:var(--text-muted)}
+/* PRINT */
+@media print{
+  .sidebar,.top-header,.section-toggle,.zoom-hint,.hamburger{display:none!important}
+  .main-content{margin:0;padding:14px}
+  .section-body.collapsed{display:block!important}
+  .doc-section{break-inside:avoid;box-shadow:none}
+  .hero-banner{background:#0f172a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .accordion-body{display:block!important}
+}
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .top-header{left:0}
+  .main-content{margin-left:0;padding:16px}
+  .hamburger{display:block}
+  .search-box{max-width:none}
+  .header-actions .btn span{display:none}
+}
+@media(max-width:640px){
+  .hero-banner{padding:24px 18px}
+  .hero-banner h1{font-size:19px}
+  .header-actions{gap:4px}
+  .section-header{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-icon">📦</div>
+    <div class="brand-title">Envíos Movilizados<br>GETP v2</div>
+    <div class="brand-sub">PBI-01 · 340288-AJCUBO-CUBOS · VIR_MT_ETL_ESTANDAR</div>
+  </div>
+  <div class="sidebar-controls">
+    <button onclick="expandAll()">▼ Expandir</button>
+    <button onclick="collapseAll()">▶ Colapsar</button>
+    <button onclick="wrapAll()">Envolver todo</button>
+  </div>
+  <nav class="tree-nav">
+    <div class="tree-node">
+      <div class="tree-parent" onclick="toggleBranch('br-sec')"><span class="tree-arrow" id="arr-br-sec">▶</span>Contenido</div>
+      <div class="tree-children" id="br-sec">
+        <a class="tree-leaf" onclick="navTo('cap1')">1 · Control de Cambios</a>
+        <a class="tree-leaf" onclick="navTo('cap2')">2 · Introducción y Objetivos</a>
+        <a class="tree-leaf" onclick="navTo('cap3')">3 · Arquitectura E2E</a>
+        <a class="tree-leaf" onclick="navTo('cap4')">4 · Diccionario de Datos</a>
+        <a class="tree-leaf" onclick="navTo('cap5')">5 · Paquetes SSIS</a>
+        <a class="tree-leaf" onclick="navTo('cap6')">6 · Despliegue ISPAC</a>
+        <a class="tree-leaf" onclick="navTo('cap7')">7 · Auditoría y Logging</a>
+        <a class="tree-leaf" onclick="navTo('cap8')">8 · Lógica de Negocio</a>
+        <a class="tree-leaf" onclick="navTo('cap9')">9 · Evolutivo y Criterios</a>
+        <a class="tree-leaf" onclick="navTo('cap10')">10 · Cubo SSAS</a>
+        <a class="tree-leaf" onclick="navTo('cap11')">11 · Anexos</a>
+      </div>
+    </div>
+    <div class="tree-node">
+      <div class="tree-parent" onclick="toggleBranch('br-evo')"><span class="tree-arrow" id="arr-br-evo">▶</span>Evolutivo PBI-01</div>
+      <div class="tree-children" id="br-evo">
+        <a class="tree-leaf tree-sub" onclick="navTo('cap9')">Nueva dimensión Tipo Entrega</a>
+        <a class="tree-leaf" onclick="navTo('cap9')">Trazabilidad E2E</a>
+        <a class="tree-leaf" onclick="navTo('cap9')">Matriz CA01–CA06</a>
+        <a class="tree-leaf" onclick="navTo('cap10')">Perspectiva RED_V2</a>
+        <a class="tree-leaf" onclick="navTo('cap10')">Consultas MDX</a>
+      </div>
+    </div>
+    <div class="tree-node">
+      <div class="tree-parent" onclick="toggleBranch('br-ref')"><span class="tree-arrow" id="arr-br-ref">▶</span>Referencia rápida</div>
+      <div class="tree-children" id="br-ref">
+        <a class="tree-leaf" onclick="navTo('cap6')">Variables de entorno</a>
+        <a class="tree-leaf" onclick="navTo('cap7')">Tablas de control</a>
+        <a class="tree-leaf" onclick="navTo('cap11')">Valores centinela</a>
+        <a class="tree-leaf" onclick="navTo('cap11')">Glosario</a>
+      </div>
+    </div>
+  </nav>
+</aside>
+
+<!-- ══════════ HEADER ══════════ -->
+<header class="top-header">
+  <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <div class="search-box"><input id="globalSearch" type="text" placeholder="Buscar en el manual…" oninput="filterContent(this.value)"></div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="unwrapAll()">Desenvolver todo</button>
+    <button class="btn btn-ghost" onclick="wrapAll()">Envolver todo</button>
+    <a class="btn btn-primary" href="VIR_MT_ETL_ESTANDAR_ENVIOS_MOVILIZADOS_GETP_V2.docx" download>⬇ DOCX</a>
+    <button class="btn btn-outline" onclick="window.print()">🖨 PDF</button>
+    <button class="btn btn-ghost" id="themeToggle" onclick="toggleTheme()">🌙 Claro</button>
+  </div>
+</header>
+
+<main class="main-content">
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero-banner" id="hero">
+  <div class="hero-tag">340288-AJCUBO-CUBOS-PBI01 · Manual Técnico-Funcional</div>
+  <h1>Cubo Envíos Movilizados — GETP v2<br>Manual ETL (SSIS) y SSAS</h1>
+  <p>Documentación técnica-funcional del evolutivo sobre la perspectiva <strong>GUIAS_ENTREGADAS_TIEMPO_PROMESA_RED_V2</strong> del cubo <strong>ENVIOS_MOVILIZADOS</strong>. Se incorpora el análisis por tipo de entrega (<em>física</em>, <em>virtual</em> y <em>no disponible</em>) preservando de forma estricta la métrica de Guías Entregadas en Tiempo Promesa.</p>
+  <div class="hero-metrics">
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">🏷️</div>
+      <div class="metric-val">3</div>
+      <div class="metric-lbl">Estados de tipo de entrega</div>
+      <div class="kpi-tooltip"><strong>Clasificación obligatoria</strong>Entregado físico · Entregado virtual · No disponible. Origen: <code>SIG_COLOMBIA_DW.TMP.GETP_GUIAS_PRUEBA_ENTREGA</code> → atributo <code>ID_TIPO_ENTREGA</code>.</div>
+    </div>
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">🧊</div>
+      <div class="metric-val">16</div>
+      <div class="metric-lbl">Dimensiones en la perspectiva v2</div>
+      <div class="kpi-tooltip"><strong>Perspectiva RED_V2</strong>16 dimensiones visibles, incluida <code>VW PRUEBAS ENTREGA</code> (dimensión nueva). Grupo de medida: <code>Guias_Entreg_Tiempo_ Promesa_RED_V2</code>.</div>
+    </div>
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">🎯</div>
+      <div class="metric-val">CA01–CA06</div>
+      <div class="metric-lbl">Criterios de aceptación</div>
+      <div class="kpi-tooltip"><strong>Criterios del PBI-01</strong>CA01 identificación exclusiva del cubo v2, CA02 físico, CA03 virtual, CA04 no disponible, CA05 conservación del indicador, CA06 histórico 2026. Ver Capítulo 9.</div>
+    </div>
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">📅</div>
+      <div class="metric-val">2026</div>
+      <div class="metric-lbl">Alcance histórico del repoblamiento</div>
+      <div class="kpi-tooltip"><strong>Ventana histórica</strong>El repoblamiento del tipo de entrega se acota al año 2026. Los parámetros <code>FULL_FACH_INI/FIN</code> controlan el rango de recarga de la tabla de hechos.</div>
+    </div>
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">♻️</div>
+      <div class="metric-val">0</div>
+      <div class="metric-lbl">Cambios en la fórmula del indicador GETP</div>
+      <div class="kpi-tooltip"><strong>Invariabilidad de la métrica</strong>La fórmula de <em>Guías Entregadas en Tiempo Promesa</em> no se modifica. Sólo se habilita la segmentación por tipo de entrega (CA05).</div>
+    </div>
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">🔗</div>
+      <div class="metric-val">4</div>
+      <div class="metric-lbl">Paquetes ETL impactados</div>
+      <div class="kpi-tooltip"><strong>Paquetes del evolutivo</strong><code>00_Maestro_EnviosMovilizados</code>, <code>P03_..._RED_OPERATIVA_V2</code>, <code>P05_Borrar Tabla FAC_ENVIOS_MOVILIZADOS</code> y <code>P06_..._FAC_SP</code>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CAP 1 ══════════ -->
+<div class="doc-section" id="cap1">
+  <div class="section-header" onclick="toggleSection('body1',this)">
+    <div class="sec-num">1</div>
+    <div class="sec-title">Control de Cambios y Versiones</div>
+    <span class="sec-badge badge-blue">Auditoría</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body1">
+    <p style="color:var(--text-muted);font-size:12.5px">Registro oficial de versiones del manual. Toda modificación debe registrarse con versión incremental, componentes afectados y descripción detallada del evolutivo.</p>
+    <div class="tbl-wrap">
+      <table class="data-table">
+        <thead><tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Componentes afectados</th><th>Tipo</th><th>Descripción del evolutivo</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>1.0</strong></td>
+            <td>2026-11-19</td>
+            <td>John Cruz</td>
+            <td>
+              <span class="chip chip-blue">P03_..._RED_OPERATIVA_V2.dtsx</span>
+              <span class="chip chip-blue">P06_..._FAC_SP.dtsx</span>
+              <span class="chip chip-orange">MODELO_ENVIOS_MOVILIZADOS.ispac</span>
+              <span class="chip chip-green">VW PRUEBAS ENTREGA (dimensión)</span>
+              <span class="chip chip-green">Atributos ID/NOMBRE TIPO ENTREGA</span>
+              <span class="chip chip-orange">Perspectiva GUIAS_ENTREGADAS_TIEMPO_PROMESA_RED_V2</span>
+            </td>
+            <td><span class="sec-badge badge-new">NUEVO</span></td>
+            <td><strong>Creación inicial del manual.</strong> Se documenta el evolutivo del PBI 340288-AJCUBO-CUBOS-PBI01: (1) actualización masiva de <code>ID_TIPO_ENTREGA</code> en la tabla temporal de la RED Operativa v2 cruzando por número de guía contra Pruebas de Entrega Nacional; (2) incorporación de la dimensión <strong>VW PRUEBAS ENTREGA</strong> al DSV y al cubo; (3) habilitación de la segmentación en la perspectiva v2 sin alterar las medidas GETP; (4) valor centinela <code>-1</code> para guías sin tipo de entrega (No disponible); (5) alcance de repoblamiento 2026.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>1.1 Componentes técnicos afectados</h3>
+    <div class="tbl-wrap">
+      <table class="data-table">
+        <thead><tr><th>Componente</th><th>Tipo</th><th>Ubicación</th><th>Cambio realizado</th></tr></thead>
+        <tbody>
+          <tr><td><code>00_Maestro_EnviosMovilizados.dtsx</code></td><td>Paquete maestro</td><td>ETL\HU_AJCUBO-CUBOS-PBI01-GETP_PE_VF\ENVIOS_MOV_GETP_V2</td><td>Orquesta P1–P6 y el procesamiento del cubo (Analysis Services Execute). Incluye validación de cambio de mes.</td></tr>
+          <tr><td><code>P03_SISMILENIO_EXTRAER_GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2.dtsx</code></td><td>Paquete ETL</td><td>ETL\...\ENVIOS_MOV_GETP_V2</td><td>Tarea <em>“Actualizar Guias con tipo pruebas entrega”</em>: set inicial a <code>-1</code> y UPDATE desde <code>GETP_GUIAS_PRUEBA_ENTREGA</code> por <code>NUMERO_GUIA</code>.</td></tr>
+          <tr><td><code>P05_Borrar Tabla FAC_ENVIOS_MOVILIZADOS.dtsx</code></td><td>Paquete ETL</td><td>ETL\...\ENVIOS_MOV_GETP_V2</td><td>Limpieza de la tabla de hechos para la ventana de repoblamiento.</td></tr>
+          <tr><td><code>P06_SISMILENIO_EXTRAER_ENVIOS_MOVILIZADOS_FAC_SP.dtsx</code></td><td>Paquete ETL</td><td>ETL\...\ENVIOS_MOV_GETP_V2</td><td>Carga final de la FAC vía stored procedure y cálculo de cumplimiento de tiempos.</td></tr>
+          <tr><td><code>VW PRUEBAS ENTREGA.dim</code></td><td>Dimensión SSAS</td><td>OLAP\CUBO_SSAS_ENV_MOV_GETP_V2</td><td>Dimensión con atributos <code>ID TIPO ENTREGA</code> y <code>NOMBRE TIPO ENTREGA</code>; binding a <code>DIM_VW_PRUEBAS_ENTREGA</code>.</td></tr>
+          <tr><td><code>ENVIOS_MOVILIZADOS.cube</code></td><td>Cubo SSAS</td><td>OLAP\CUBO_SSAS_ENV_MOV_GETP_V2</td><td>Dimensión integrada en la perspectiva <code>- GUIAS_ENTREGADAS_TIEMPO_PROMESA_RED_V2</code>.</td></tr>
+          <tr><td><code>340288_AJCUBO_CUBOS_PBI01_Ajuste_Cubo_GETP_PE.role</code></td><td>Rol SSAS</td><td>OLAP\CUBO_SSAS_ENV_MOV_GETP_V2</td><td>Rol de seguridad del ajuste, con descripción oficial del PBI.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 2 ══════════ -->
+<div class="doc-section" id="cap2">
+  <div class="section-header" onclick="toggleSection('body2',this)">
+    <div class="sec-num">2</div>
+    <div class="sec-title">Introducción y Objetivos de la Solución</div>
+    <span class="sec-badge badge-blue">Contexto</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body2">
+    <div class="accordion-group">
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a2a')">🎯 2.1 Propósito de negocio <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a2a">
+          <p>El indicador <strong>Guías Entregadas en Tiempo Promesa (GETP)</strong> mide la proporción de guías entregadas dentro del tiempo comprometido con el cliente. Hasta la versión anterior el análisis no permitía distinguir <em>cómo</em> se produjo la entrega (evidencia física o virtual), impidiendo explicar desviaciones del indicador asociadas a la digitalización de la prueba de entrega.</p>
+          <p>El evolutivo habilita la <strong>segmentación del indicador por tipo de entrega</strong> sin tocar su fórmula: el negocio puede ahora responder “¿cuánto del GETP corresponde a entrega física, cuánto a virtual y cuánto no tiene evidencia registrada?”.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a2b')">📋 2.2 Contexto del PBI <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a2b">
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Atributo</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>ID PBI</td><td><strong>340288-AJCUBO-CUBOS-PBI01</strong></td></tr>
+              <tr><td>Feature padre</td><td>340288-PC-AJCUBO — Ajustes de Cubos de Gestión Tiempo Promesa y Gestión en Línea</td></tr>
+              <tr><td>Título</td><td>Ajuste del Cubo GETP — nueva dimensión Tipo de Entrega (v2)</td></tr>
+              <tr><td>Cubo SSAS</td><td><code>ENVIOS_MOVILIZADOS</code> (base <code>CUBO_SSAS_ENV_MOV_GETP_V2</code>)</td></tr>
+              <tr><td>Perspectiva</td><td><code>GUIAS_ENTREGADAS_TIEMPO_PROMESA_RED_V2</code></td></tr>
+              <tr><td>ISPAC producción</td><td><code>MODELO_ENVIOS_MOVILIZADOS</code></td></tr>
+              <tr><td>Grupo de medida</td><td><code>GUIAS ENTREG TIEMPO PROMESA RED OPERATIVA V2</code></td></tr>
+              <tr><td>Ruta ETL</td><td><code>ETL\HU_AJCUBO-CUBOS-PBI01-GETP_PE_VF\ENVIOS_MOV_GETP_V2</code></td></tr>
+              <tr><td>Ruta cubo</td><td><code>OLAP\CUBO_SSAS_ENV_MOV_GETP_V2</code></td></tr>
+              <tr><td>Alcance histórico</td><td>Año 2026</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a2c')">🗺️ 2.3 Alcance integral <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a2c">
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Capa</th><th>Componente</th><th>Alcance del evolutivo</th></tr></thead>
+            <tbody>
+              <tr><td>Ingesta</td><td>Pruebas de Entrega Nacional</td><td>Extracción de <code>TMP.GETP_GUIAS_PRUEBA_ENTREGA</code> (origen <code>SIG_COLOMBIA_DW</code>).</td></tr>
+              <tr><td>Transformación</td><td>SSIS P03 (V2)</td><td>Inicialización a <code>-1</code> y actualización del tipo de entrega por guía.</td></tr>
+              <tr><td>Carga</td><td><code>FAC.GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2</code></td><td>Persistencia del atributo <code>ID_TIPO_ENTREGA</code> en el hecho.</td></tr>
+              <tr><td>Modelado OLAP</td><td>SSAS ENVIOS_MOVILIZADOS</td><td>Dimensión <code>VW PRUEBAS ENTREGA</code> + relación con la FAC v2 + perspectiva v2.</td></tr>
+              <tr><td>Visualización</td><td>Power BI / Reporting Services</td><td>Segmentación del indicador GETP por tipo de entrega.</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a2d')">⚠️ 2.4 Supuestos y restricciones <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a2d">
+          <ul>
+            <li>El evolutivo aplica <strong>exclusivamente</strong> a la versión 2 del cubo y su perspectiva; el cubo v1 no se modifica.</li>
+            <li>La fórmula de <em>Guías Entregadas en Tiempo Promesa</em> es <strong>invariante</strong>; sólo se agrega una dimensión de análisis.</li>
+            <li>Guías sin registro en Pruebas de Entrega o con tipo nulo se clasifican como <strong>No disponible</strong> (<code>-1</code>).</li>
+            <li>Los horarios y datos existentes se conservan; cualquier repoblamiento se acota a 2026.</li>
+            <li>El cubo v2 comparte el modelo dimensional del proyecto (396 archivos <code>.dim</code>) por lo que los cambios deben limitarse al hecho v2 y a la nueva dimensión.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 3 ══════════ -->
+<div class="doc-section" id="cap3">
+  <div class="section-header" onclick="toggleSection('body3',this)">
+    <div class="sec-num">3</div>
+    <div class="sec-title">Arquitectura de Datos y Topología de Conexiones E2E</div>
+    <span class="sec-badge badge-blue">Arquitectura</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body3">
+    <h3>3.1 Patrón arquitectónico por capas</h3>
+    <p>La solución sigue un patrón <strong>Data Warehouse Kimball</strong> con separación estricta de capas y flujo unidireccional desde las fuentes OLTP hasta el cubo OLAP.</p>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Capa</th><th>Alias</th><th>Base de datos</th><th>Objetos</th><th>Responsabilidad</th></tr></thead>
+      <tbody>
+        <tr><td>Fuentes OLTP / Logística</td><td>SRC</td><td>SIG_COLOMBIA_DW, SIG_COL_LOGISTICA, SISCLINET, RetailWebR4</td><td>Guías, movimientos, seguimiento de envío, pruebas de entrega</td><td>Datos operacionales</td></tr>
+        <tr><td>Staging / Párking</td><td>PAR / TMP</td><td>SIG_COLOMBIA_DW</td><td><code>TMP.GETP_GUIAS_PRUEBA_ENTREGA</code>, <code>TMP.DEV_GETP_GUIAS_ENTREG_..._V2</code>, <code>TMP.GUIAS_ENTREG_..._V2</code></td><td>Copia fiel y trabajo previo a la FAC</td></tr>
+        <tr><td>Dimensiones</td><td>DIM</td><td>SIG_COLOMBIA_DW / SIG_COL_LOGISTICA_DW</td><td><code>DIM_VW_PRUEBAS_ENTREGA</code>, TIEMPO, GEOGRAFÍA, UEN, etc.</td><td>Dimensiones conformadas con surrogate keys</td></tr>
+        <tr><td>Hechos</td><td>FAC</td><td>SIG_COLOMBIA_DW</td><td><code>FAC.GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2</code></td><td>Una fila por guía entregada evaluada contra promesa</td></tr>
+        <tr><td>Cubo OLAP</td><td>OLAP</td><td>CUBO_SSAS_ENV_MOV_GETP_V2</td><td>Cubo <code>ENVIOS_MOVILIZADOS</code>, perspectiva RED_V2</td><td>Modelo semántico multidimensional</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>3.2 Matriz de Connection Managers</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Connection Manager</th><th>Tipo</th><th>Servidor / Base</th><th>Uso en el evolutivo</th></tr></thead>
+      <tbody>
+        <tr><td><code>DS_SIG_COLOMBIA_DW</code></td><td>OLE DB</td><td>SIG_COLOMBIA_DW</td><td>Destino de staging y hechos; origen de pruebas de entrega.</td></tr>
+        <tr><td><code>DS_SIG_COL_LOGISTICA_DW</code></td><td>OLE DB</td><td>SIG_COL_LOGISTICA_DW</td><td>Dimensiones logísticas y movimientos.</td></tr>
+        <tr><td><code>SERV-DBI01.SIG_COL_LOGISTICA</code></td><td>OLE DB</td><td>SERV-DBI01 · SIG_COL_LOGISTICA</td><td>Consulta de guías y seguimiento de envío.</td></tr>
+        <tr><td><code>DS_SISCLINET_Usrsisclinet</code></td><td>OLE DB</td><td>SISCLINET</td><td>Dimensiones de formato de impresión y tipo de guía.</td></tr>
+        <tr><td><code>PRD_LSTSSDGN</code> / <code>PRD_LSTSSDGN.PARAMETROS</code></td><td>OLE DB</td><td>LSTSSDGN</td><td>Parámetros operativos (festivos, ciudades).</td></tr>
+        <tr><td><code>PRD_RETAIL_LSTSSRET_SQL03.RetailWebR4</code></td><td>OLE DB</td><td>RetailWebR4</td><td>Datos de retail usados por dimensiones de guía.</td></tr>
+        <tr><td><code>PRD_AUX_SERV-DBI01_SIG_COLOMBIA_DW</code></td><td>OLE DB</td><td>Servidor auxiliar</td><td>Conexión de soporte para procesos auxiliares.</td></tr>
+        <tr><td><code>DEV_AUX_D_SERV-DBI01_SIG_COL_LOGISTICA</code></td><td>OLE DB</td><td>Servidor auxiliar DEV</td><td>Consultas de desarrollo (no productivas).</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>3.3 Diagrama de flujo vertical E2E</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg3')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 3.1 — Tránsito de datos: origen → TMP → DIM/FAC → Cubo</div>
+      <div class="mermaid" id="dg3">
+flowchart TD
+  A(["🏭 FUENTES<br/>SIG_COLOMBIA_DW · SIG_COL_LOGISTICA<br/>SISCLINET · RetailWebR4"]) --> B["📥 EXTRACCIÓN SSIS<br/>P01 TMP envíos movilizados<br/>P03 RED Operativa V2<br/>P04 Seguimiento de envío"]
+  B --> C["🅿️ CAPA TMP/PAR<br/>GETP_GUIAS_PRUEBA_ENTREGA<br/>DEV_GETP_GUIAS_ENTREG_..._V2"]
+  C --> D{"¿Guía con registro<br/>en Pruebas de Entrega?"}
+  D -->|"Sí"| E["🔗 UPDATE ID_TIPO_ENTREGA<br/>desde TIPO_PRUEBA_ENTREGA<br/>por NUMERO_GUIA"]
+  D -->|"No"| F["⚠️ Valor centinela<br/>ID_TIPO_ENTREGA = -1<br/>No disponible"]
+  E --> G["📐 DIMENSIONES<br/>DIM_VW_PRUEBAS_ENTREGA<br/>TIEMPO · GEOGRAFIA · UEN"]
+  F --> G
+  G --> H["📊 HECHOS V2<br/>FAC.GUIAS_ENTREG_TIEMPO_PROMESA<br/>_RED_OPERATIVA_V2"]
+  H --> I["🔄 PROCESAMIENTO SSAS<br/>ProcessFull FAC v2<br/>ProcessUpdate dimensión"]
+  I --> J["🧊 CUBO ENVIOS_MOVILIZADOS<br/>Perspectiva RED_V2<br/>Medidas GETP sin cambio"]
+  J --> K(["📈 POWER BI / REPORTING<br/>Segmentación por tipo de entrega"])
+  style A fill:#0072b1,color:#fff
+  style K fill:#10b981,color:#fff
+  style F fill:#f59e0b,color:#032b3b
+      </div>
+    </div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar captura de los Connection Managers del proyecto ENVIOS_MOV_GETP_V2 en SSDT]</span></div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 4 ══════════ -->
+<div class="doc-section" id="cap4">
+  <div class="section-header" onclick="toggleSection('body4',this)">
+    <div class="sec-num">4</div>
+    <div class="sec-title">Diccionario de Datos y Tipología de Tablas</div>
+    <span class="sec-badge badge-blue">Metadatos</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body4">
+    <div class="accordion-group">
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a4a')">🅿️ 4.1 Esquema TMP/PAR — staging del evolutivo <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a4a">
+          <h3>GETP_GUIAS_PRUEBA_ENTREGA</h3>
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Columna</th><th>Tipo</th><th>Nulable</th><th>Descripción</th></tr></thead>
+            <tbody>
+              <tr><td><code>NUMERO_GUIA</code></td><td>VARCHAR(30)</td><td>NO</td><td>Número de guía; clave de cruce con el hecho.</td></tr>
+              <tr><td><code>TIPO_PRUEBA_ENTREGA</code></td><td>INT</td><td>SI</td><td>Código del tipo de prueba de entrega registrada.</td></tr>
+              <tr><td><code>FECHA_EXTRACCION</code></td><td>DATETIME</td><td>SI</td><td>Marca de extracción desde el origen.</td></tr>
+            </tbody>
+          </table></div>
+          <h3>DEV_GETP_GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2</h3>
+          <p>Tabla de trabajo donde se calcula el cumplimiento de la promesa y se incorpora el tipo de entrega antes de la carga final.</p>
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Columna</th><th>Tipo</th><th>Descripción</th></tr></thead>
+            <tbody>
+              <tr><td><code>NUMERO_GUIA</code></td><td>VARCHAR(30)</td><td>Guía evaluada.</td></tr>
+              <tr><td><code>ID_TIPO_ENTREGA</code></td><td>INT</td><td>Inicializado a <code>-1</code>; actualizado con <code>TIPO_PRUEBA_ENTREGA</code>.</td></tr>
+              <tr><td><code>TIME_ID</code></td><td>INT</td><td>Clave de tiempo de la entrega.</td></tr>
+              <tr><td><code>TIEMPO_PROMESA_H</code></td><td>DECIMAL(18,4)</td><td>Horas de promesa comprometidas.</td></tr>
+              <tr><td><code>TIEMPO_EJECUTADO</code></td><td>DECIMAL(18,4)</td><td>Horas reales de ejecución de la entrega.</td></tr>
+            </tbody>
+          </table></div>
+          <h3>GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2 (TMP consolidado)</h3>
+          <p>Versión consolidada de la ventana de extracción; alimenta la FAC mediante el stored procedure de carga.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a4b')">📐 4.2 Esquema DIM — dimensión Tipo de Entrega <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a4b">
+          <h3>DIM_VW_PRUEBAS_ENTREGA <span class="sec-badge badge-new">NUEVA</span></h3>
+          <p>Dimensión en estrella que expone la clasificación de la prueba de entrega. En el proyecto SSAS se materializa como <code>VW PRUEBAS ENTREGA.dim</code>.</p>
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Atributo SSAS</th><th>Columna física</th><th>Tipo</th><th>Descripción</th></tr></thead>
+            <tbody>
+              <tr><td><code>ID TIPO ENTREGA</code></td><td>ID_TIPO_ENTREGA</td><td>INT</td><td>Clave del tipo de entrega. <code>-1</code> = No disponible.</td></tr>
+              <tr><td><code>NOMBRE TIPO ENTREGA</code></td><td>NOMBRE_TIPO_ENTREGA</td><td>VARCHAR(50)</td><td>Descripción funcional: Entregado físico / Entregado virtual / No disponible.</td></tr>
+            </tbody>
+          </table></div>
+          <div class="info-box info"><strong>Nota de modelado:</strong> la dimensión se relaciona con el hecho v2 por <code>ID_TIPO_ENTREGA</code> y con la dimensión <code>NUMERO GUIA PRUEBA ENTREGA</code> cuando el análisis requiere detalle a nivel de guía.</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a4c')">📊 4.3 Tabla de hechos <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a4c">
+          <h3>FAC.GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2 <span class="sec-badge badge-mod">MODIFICADA</span></h3>
+          <p><strong>Granularidad:</strong> una fila por guía entregada evaluada contra la promesa de la RED Operativa.</p>
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Columna</th><th>Tipo</th><th>Rol</th><th>Descripción</th></tr></thead>
+            <tbody>
+              <tr><td><code>NUMERO_GUIA</code></td><td>VARCHAR(30)</td><td>Degen</td><td>Guía como dimensión degenerada.</td></tr>
+              <tr><td><code>TIME_ID</code></td><td>INT</td><td>FK</td><td>Fecha de la entrega (dimensión TIEMPO).</td></tr>
+              <tr><td><code>ID_TIPO_ENTREGA</code></td><td>INT</td><td>FK 🆕</td><td>Tipo de prueba de entrega; <code>-1</code> cuando no existe evidencia.</td></tr>
+              <tr><td><code>TIEMPO_PROMESA_H</code></td><td>DECIMAL(18,4)</td><td>Medida</td><td>Horas de promesa.</td></tr>
+              <tr><td><code>TIEMPO_EJECUTADO</code></td><td>DECIMAL(18,4)</td><td>Medida</td><td>Horas ejecutadas.</td></tr>
+              <tr><td><code>CUMPLE_TIEMPO_PROMESA</code></td><td>INT</td><td>Medida</td><td>1 = entregada en tiempo promesa, 0 = fuera de promesa.</td></tr>
+            </tbody>
+          </table></div>
+          <div class="info-box warning"><strong>Invariante (CA05):</strong> las columnas de cumplimiento y tiempos no cambian de definición; el nuevo atributo es exclusivamente descriptivo.</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a4d')">🗂️ 4.4 Vistas de soporte y catálogos <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a4d">
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Objeto</th><th>Tipo</th><th>Propósito</th></tr></thead>
+            <tbody>
+              <tr><td><code>VW_PRUEBA_ENTREGA</code></td><td>Vista</td><td>Consolida las pruebas de entrega nacionales por guía y tipo.</td></tr>
+              <tr><td><code>DIM_VW_PRUEBAS_ENTREGA</code></td><td>Tabla DIM</td><td>Materialización del catálogo de tipos de entrega para SSAS.</td></tr>
+              <tr><td><code>NUMERO_GUIA_PRUEBA_ENTREGA.dim</code></td><td>Dimensión SSAS</td><td>Detalle por guía de la prueba de entrega (navegación fina).</td></tr>
+              <tr><td><code>PRUEBA_ENTREGA_ESTADOS.dim</code></td><td>Dimensión SSAS</td><td>Estados asociados a la prueba de entrega.</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 5 ══════════ -->
+<div class="doc-section" id="cap5">
+  <div class="section-header" onclick="toggleSection('body5',this)">
+    <div class="sec-num">5</div>
+    <div class="sec-title">Análisis Técnico Avanzado de Paquetes SSIS</div>
+    <span class="sec-badge badge-orange">ETL</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body5">
+    <h3>5.1 Inventario real de paquetes del proyecto</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Paquete (.dtsx)</th><th>Propósito</th><th>Rol en el evolutivo</th></tr></thead>
+      <tbody>
+        <tr><td><code>00_Maestro_EnviosMovilizados.dtsx</code></td><td>Orquestador de la carga y del procesamiento del cubo.</td><td>Ejecuta P1–P6 y las tareas Analysis Services Execute.</td></tr>
+        <tr><td><code>00_Envios_Movilizados.dtsx</code></td><td>Carga base de envíos movilizados.</td><td>Soporte histórico del cubo.</td></tr>
+        <tr><td><code>00_GTP_V2_EnviosMovim.dtsx</code></td><td>Carga GTP v2 con partición única de proceso.</td><td>Procesamiento de la partición del cubo v2.</td></tr>
+        <tr><td><code>P00_CARGAR_DIMENSIONES.dtsx</code></td><td>Carga de dimensiones de retail, SISCLINET y formatos.</td><td>Precondición de dimensiones.</td></tr>
+        <tr><td><code>P01_SISMILENIO_EXTRAER_ENVIOS_MOVILIZADOS_TMP.dtsx</code></td><td>Extracción de envíos a TMP.</td><td>Insumo base.</td></tr>
+        <tr><td><code>P02_..._RED_OPERATIVA.dtsx</code></td><td>Versión previa del cálculo RED Operativa.</td><td>Linaje histórico (v1).</td></tr>
+        <tr><td><code>P03_..._RED_OPERATIVA_V2.dtsx</code></td><td>Cálculo v2 del cumplimiento y tipo de entrega.</td><td><strong>Impactado</strong>: UPDATE de <code>ID_TIPO_ENTREGA</code>.</td></tr>
+        <tr><td><code>P04_..._SEGUIMIENTO_ENVIO.dtsx</code></td><td>Extracción de seguimiento de envío.</td><td>Insumo de eventos.</td></tr>
+        <tr><td><code>P05_Borrar Tabla FAC_ENVIOS_MOVILIZADOS.dtsx</code></td><td>Limpieza de hechos previa a la recarga.</td><td>Ventana de repoblamiento.</td></tr>
+        <tr><td><code>P06_..._FAC_SP.dtsx</code></td><td>Carga de la FAC mediante procedimiento almacenado.</td><td><strong>Impactado</strong>: persistencia final.</td></tr>
+        <tr><td><code>EXTRAER_CLIENTES_MOVIMIENTO.dtsx</code></td><td>Extracción de clientes con movimiento.</td><td>Dimensión de cliente.</td></tr>
+        <tr><td><code>Comparacion_DG_MCP.dtsx</code></td><td>Control de conciliación DG vs. MCP.</td><td>Validación de calidad.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>5.2 Flujo de control del paquete maestro</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg5a')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 5.1 — 00_Maestro_EnviosMovilizados.dtsx</div>
+      <div class="mermaid" id="dg5a">
+flowchart TD
+  S(["▶ START"]) --> V["Execute SQL Task<br/>Val_Distinto_Mes<br/>¿cambio de mes?"]
+  V --> P1["EPT_P1<br/>P01 Envíos movilizados TMP"]
+  P1 -->|Success| P3["EPT_P3<br/>P03 RED Operativa V2<br/>🆕 tipo de entrega"]
+  P3 -->|Success| P4["EPT_P4<br/>P04 Seguimiento de envío"]
+  P4 -->|Success| P5["EPT_P5<br/>P05 Borrar FAC"]
+  P5 -->|Success| P6["EPT_P6<br/>P06 Carga FAC (SP)"]
+  P6 -->|Success| CA["Analysis Services Execute<br/>Proc_Cubo_Envios_Mov<br/>Proc_Cubo_Getp_V2"]
+  CA -->|Success| CP["PROCESS_PARTIC_CUBO<br/>Partición v2 + dimensiones"]
+  CP -->|Success| E(["✅ END SUCCESS"])
+  P1 -->|Failure| ER["📛 OnError<br/>log de ejecución + alerta"]
+  P3 -->|Failure| ER
+  P6 -->|Failure| ER
+  CA -->|Failure| ER
+  ER --> F(["❌ END FAIL"])
+  style S fill:#10b981,color:#fff
+  style E fill:#10b981,color:#fff
+  style ER fill:#ef4444,color:#fff
+  style P3 fill:#00b0f0,color:#032b3b
+      </div>
+    </div>
+
+    <h3>5.3 Paquete P03 — Lógica del tipo de entrega</h3>
+    <p>El paquete contiene la tarea <strong>“Actualizar Guias con tipo pruebas entrega”</strong>, ubicada antes del borrado e inserción en la FAC. Su lógica es idempotente: primero neutraliza el atributo y luego lo actualiza con la evidencia disponible.</p>
+    <div class="code-block"><span class="cm">-- Tarea: Actualizar Guias con tipo pruebas entrega (P03_V2)</span>
+<span class="kw">UPDATE</span> [TMP].[DEV_GETP_GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2]
+<span class="kw">SET</span> ID_TIPO_ENTREGA = <span class="str">-1</span>;   <span class="cm">-- No disponible por defecto</span>
+
+<span class="kw">UPDATE</span> TMPGTP
+<span class="kw">SET</span> TMPGTP.ID_TIPO_ENTREGA = GPE.TIPO_PRUEBA_ENTREGA
+<span class="kw">FROM</span> SIG_COLOMBIA_DW.[TMP].[GETP_GUIAS_PRUEBA_ENTREGA] GPE <span class="kw">WITH</span>(NOLOCK)
+<span class="kw">INNER JOIN</span> [TMP].[DEV_GETP_GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2] TMPGTP <span class="kw">WITH</span>(NOLOCK)
+  <span class="kw">ON</span> GPE.NUMERO_GUIA = TMPGTP.NUMERO_GUIA;</div>
+    <div class="diagram-wrap" onclick="openZoom('dg5b')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 5.2 — Data flow lógico de P03 (tipo de entrega)</div>
+      <div class="mermaid" id="dg5b">
+flowchart TD
+  A(["TMP.DEV_GETP_GUIAS_ENTREG...V2"]) --> B["UPDATE global<br/>ID_TIPO_ENTREGA = -1"]
+  B --> C{"¿Existe NUMERO_GUIA<br/>en GETP_GUIAS_PRUEBA_ENTREGA?"}
+  C -->|"Sí"| D["UPDATE JOIN<br/>ID_TIPO_ENTREGA = TIPO_PRUEBA_ENTREGA"]
+  C -->|"No"| E["Conserva -1<br/>No disponible"]
+  D --> F["Cálculo de tiempos<br/>y cumplimiento de promesa"]
+  E --> F
+  F --> G["BORRAR EN FAC registros a ingresar<br/>(por NUMERO_GUIA)"]
+  G --> H["CARGA INCREMENTAL<br/>FAC.GUIAS_ENTREG_TIEMPO<br/>_PROMESA_RED_OPERATIVA_V2"]
+  H --> I(["✅ Fin de paquete"])
+  style A fill:#0072b1,color:#fff
+  style E fill:#f59e0b,color:#032b3b
+  style I fill:#10b981,color:#fff
+      </div>
+    </div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar captura del flujo de control de P03_..._RED_OPERATIVA_V2 con la tarea “Actualizar Guias con tipo pruebas entrega”]</span></div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar captura del Data Flow Task de carga incremental hacia FAC en P03/P06]</span></div>
+
+    <h3>5.4 Precedence Constraints y manejo de errores</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Origen</th><th>Destino</th><th>Tipo</th><th>Criterio</th></tr></thead>
+      <tbody>
+        <tr><td>Validación de mes</td><td>P01</td><td>Success</td><td>Continúa sólo si la validación retorna OK.</td></tr>
+        <tr><td>P01</td><td>P03</td><td>Success</td><td>La carga de TMP debe finalizar correctamente.</td></tr>
+        <tr><td>P03</td><td>P04</td><td>Success</td><td>El tipo de entrega debe estar actualizado antes del seguimiento.</td></tr>
+        <tr><td>P05</td><td>P06</td><td>Success</td><td>La FAC debe estar limpia para la ventana.</td></tr>
+        <tr><td>Cualquier tarea</td><td>Event Handler OnError</td><td>Failure</td><td>Registra error y detiene la cadena.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 6 ══════════ -->
+<div class="doc-section" id="cap6">
+  <div class="section-header" onclick="toggleSection('body6',this)">
+    <div class="sec-num">6</div>
+    <div class="sec-title">Modelo de Despliegue Moderno: SSIS Catalog (ISPAC) y Variables de Entorno</div>
+    <span class="sec-badge badge-blue">Despliegue</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body6">
+    <h3>6.1 Estructura del proyecto compilado</h3>
+    <div class="code-block">SSISDB\
+└── DATA MART LOGISTICA\                    <span class="cm"># Carpeta de solución</span>
+    └── MODELO_ENVIOS_MOVILIZADOS\           <span class="cm"># Proyecto (.ispac)</span>
+        ├── 00_Maestro_EnviosMovilizados.dtsx
+        ├── 00_Envios_Movilizados.dtsx
+        ├── 00_GTP_V2_EnviosMovim.dtsx
+        ├── P00_CARGAR_DIMENSIONES.dtsx
+        ├── P01 ... P06 (pipeline completo)
+        ├── Environments\
+        │   ├── ENV_DEVELOPMENT
+        │   ├── ENV_QA
+        │   └── ENV_PRODUCTION
+        └── Project Parameters\
+            ├── DiaIni          (Int32)
+            ├── FULL_FACH_INI   (DateTime)
+            └── FULL_FACH_FIN   (DateTime)</div>
+
+    <h3>6.2 Parámetros reales del proyecto</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Parámetro</th><th>Tipo</th><th>Valor por defecto</th><th>Propósito</th></tr></thead>
+      <tbody>
+        <tr><td><code>DiaIni</code></td><td>Int32</td><td>15</td><td>Día de inicio de la ventana operativa del proceso.</td></tr>
+        <tr><td><code>FULL_FACH_INI</code></td><td>DateTime</td><td>Configurable por entorno</td><td>Inicio del rango de recarga de la tabla de hechos.</td></tr>
+        <tr><td><code>FULL_FACH_FIN</code></td><td>DateTime</td><td>Configurable por entorno</td><td>Fin del rango de recarga de la tabla de hechos (repoblamiento 2026).</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>6.3 Matriz de Environments</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Variable de entorno</th><th>Development</th><th>QA</th><th>Production</th></tr></thead>
+      <tbody>
+        <tr><td><code>SRV_COLOMBIA_DW</code></td><td>DEV-DBI01</td><td>QA-DBI01</td><td>PRD-DBI01</td></tr>
+        <tr><td><code>SRV_COL_LOGISTICA</code></td><td>DEV-DBI01</td><td>QA-DBI01</td><td>PRD-DBI01</td></tr>
+        <tr><td><code>FULL_FACH_INI</code></td><td>2026-01-01</td><td>2026-01-01</td><td>Parámetro del job</td></tr>
+        <tr><td><code>FULL_FACH_FIN</code></td><td>2026-11-19</td><td>2026-11-19</td><td>Parámetro del job</td></tr>
+        <tr><td><code>DiaIni</code></td><td>15</td><td>15</td><td>15</td></tr>
+      </tbody>
+    </table></div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar captura de SSISDB → MODELO_ENVIOS_MOVILIZADOS → Environments y referencias de parámetros]</span></div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 7 ══════════ -->
+<div class="doc-section" id="cap7">
+  <div class="section-header" onclick="toggleSection('body7',this)">
+    <div class="sec-num">7</div>
+    <div class="sec-title">Auditoría, Logging y Control de Filas Procesadas</div>
+    <span class="sec-badge badge-blue">Auditoría</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body7">
+    <h3>7.1 Mecanismos de auditoría</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Mecanismo</th><th>Implementación</th><th>Propósito</th></tr></thead>
+      <tbody>
+        <tr><td>Row Count</td><td>Transformación <em>Row Count</em> en cada Data Flow</td><td>Contar filas extraídas y cargadas por etapa.</td></tr>
+        <tr><td>SSIS Logging</td><td>Provider SQL Server sobre el catálogo SSISDB</td><td>Eventos OnError, OnWarning, OnInformation.</td></tr>
+        <tr><td>Event Handlers</td><td><code>OnError</code>, <code>OnWarning</code>, <code>OnPostExecute</code></td><td>Persistir estado y filas por paquete.</td></tr>
+        <tr><td>Ejecución catalogada</td><td><code>SSISDB.catalog.executions</code> / <code>event_messages</code></td><td>Trazabilidad nativa del proyecto desplegado.</td></tr>
+        <tr><td>Control de carga</td><td><code>etl.EjecucionLog</code>, <code>etl.ControlCarga</code></td><td>Watermark y bitácora centralizada.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>7.2 Estructura de tablas de control</h3>
+    <div class="code-block"><span class="kw">CREATE TABLE</span> etl.EjecucionLog (
+  ID_LOG          BIGINT IDENTITY(1,1) PRIMARY KEY,
+  NOMBRE_PAQUETE  VARCHAR(200) NOT NULL,
+  FEC_INICIO      DATETIME     NOT NULL,
+  FEC_FIN         DATETIME     NULL,
+  ESTADO          VARCHAR(20)  NOT NULL,   <span class="cm">-- INICIADO | EXITOSO | ERROR</span>
+  FILAS_EXTRAIDAS INT          NULL,
+  FILAS_CARGADAS  INT          NULL,
+  MENSAJE_ERROR   VARCHAR(MAX) NULL
+);
+
+<span class="kw">CREATE TABLE</span> etl.ControlCarga (
+  ID_CONTROL     INT IDENTITY(1,1) PRIMARY KEY,
+  NOMBRE_PROCESO VARCHAR(200) NOT NULL,
+  ULT_EJECUCION  DATETIME     NOT NULL,
+  ULT_FECHA_DATO DATE         NULL,
+  ESTADO         VARCHAR(20)  NOT NULL
+);</div>
+
+    <h3>7.3 Procesamiento y auditoría SSAS</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg7')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 7.1 — Secuencia de procesamiento del cubo</div>
+      <div class="mermaid" id="dg7">
+flowchart TD
+  A(["▶ Analysis Services Execute"]) --> B["ProcessUpdate<br/>VW PRUEBAS ENTREGA"]
+  B --> C{"¿Errores?"}
+  C -->|"Sí"| X(["❌ Log + abortar"])
+  C -->|"No"| D["ProcessFull<br/>FAC GUIAS ENTREG TP RED V2"]
+  D --> E["Recalcular miembros calculados<br/>de la perspectiva RED_V2"]
+  E --> F["Verificación MDX<br/>conteo de guías"]
+  F --> G{"¿Conteo consistente?"}
+  G -->|"Sí"| H(["✅ Cubo procesado"])
+  G -->|"Diferencia"| W(["⚠️ Warning: revisar partición"])
+  style A fill:#10b981,color:#fff
+  style H fill:#10b981,color:#fff
+  style X fill:#ef4444,color:#fff
+  style W fill:#f59e0b,color:#032b3b
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 8 ══════════ -->
+<div class="doc-section" id="cap8">
+  <div class="section-header" onclick="toggleSection('body8',this)">
+    <div class="sec-num">8</div>
+    <div class="sec-title">Lógica de Negocio y Reglas de Procesamiento</div>
+    <span class="sec-badge badge-orange">Negocio</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body8">
+    <h3>8.1 Reglas de clasificación del tipo de entrega</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Condición</th><th>Clasificación</th><th>Valor</th><th>Interpretación de negocio</th></tr></thead>
+      <tbody>
+        <tr><td>Registro con evidencia física del destinatario</td><td><span class="chip chip-green">Entregado físico</span></td><td>ID = 1</td><td>Firma o documento físico recepcionado.</td></tr>
+        <tr><td>Evidencia digital (foto, OTP, app, firma electrónica)</td><td><span class="chip chip-blue">Entregado virtual</span></td><td>ID = 2</td><td>Prueba de entrega digital registrada.</td></tr>
+        <tr><td>Sin registro, con tipo nulo o guía en procesamiento</td><td><span class="chip chip-orange">No disponible</span></td><td>ID = -1</td><td>Sin evidencia consolidada; no se excluye del indicador.</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="diagram-wrap" onclick="openZoom('dg8a')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 8.1 — Flujo vertical de decisión del tipo de entrega</div>
+      <div class="mermaid" id="dg8a">
+flowchart TD
+  A(["Guía evaluada en la RED Operativa V2"]) --> B{"¿Registro en<br/>GETP_GUIAS_PRUEBA_ENTREGA?"}
+  B -->|"No"| N["🔴 No disponible<br/>ID_TIPO_ENTREGA = -1"]
+  B -->|"Sí"| C{"¿TIPO_PRUEBA_ENTREGA<br/>es NULL?"}
+  C -->|"Sí"| N
+  C -->|"No"| D{"Naturaleza de la evidencia"}
+  D -->|"Física"| F["🟢 Entregado físico"]
+  D -->|"Digital / virtual"| V["🔵 Entregado virtual"]
+  D -->|"No homologada"| N
+  F --> Z["Segmento de la métrica GETP"]
+  V --> Z
+  N --> Z
+  Z --> R(["El total GETP no cambia;<br/>sólo se desagrega"])
+  style F fill:#10b981,color:#fff
+  style V fill:#3b82f6,color:#fff
+  style N fill:#ef4444,color:#fff
+  style R fill:#005a8c,color:#fff
+      </div>
+    </div>
+
+    <h3>8.2 Homologación y valores centinela</h3>
+    <p>La homologación se resuelve en la capa TMP. Los códigos no reconocidos <strong>no se descartan</strong>: se conservan como <code>-1</code> para que el total del indicador permanezca completo y la brecha de información sea medible.</p>
+    <div class="code-block"><span class="cm">-- Consulta de control: distribución del hecho por tipo de entrega</span>
+<span class="kw">SELECT</span>
+   ISNULL(d.NOMBRE_TIPO_ENTREGA, <span class="str">'No disponible'</span>) <span class="kw">AS</span> TIPO_ENTREGA,
+   <span class="fn">COUNT</span>(*) <span class="kw">AS</span> GUIAS,
+   <span class="fn">SUM</span>(CUMPLE_TIEMPO_PROMESA) <span class="kw">AS</span> GUIAS_EN_PROMESA
+<span class="kw">FROM</span> FAC.GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2 f
+<span class="kw">LEFT JOIN</span> DIM.DIM_VW_PRUEBAS_ENTREGA d
+  <span class="kw">ON</span> f.ID_TIPO_ENTREGA = d.ID_TIPO_ENTREGA
+<span class="kw">WHERE</span> f.TIME_ID &gt;= 20260101
+<span class="kw">GROUP BY</span> d.NOMBRE_TIPO_ENTREGA
+<span class="kw">ORDER BY</span> GUIAS <span class="kw">DESC</span>;</div>
+
+    <h3>8.3 Estructura del cubo y perspectiva</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Elemento</th><th>Tipo</th><th>Nombre</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr><td>Grupo de medida</td><td>Measure Group</td><td><code>GUIAS ENTREG TIEMPO PROMESA RED OPERATIVA V2</code></td><td>Existente</td></tr>
+        <tr><td>Medida</td><td>Measure</td><td><code>Cant Guias TProm RED_V2</code></td><td>Sin cambio</td></tr>
+        <tr><td>Medida</td><td>Measure</td><td><code>Tiempo Ejecutado Hrs_V2</code></td><td>Sin cambio</td></tr>
+        <tr><td>Medida</td><td>Measure</td><td><code>Tiempo Oferta RED OPE Hrs_V2</code></td><td>Sin cambio</td></tr>
+        <tr><td><strong>Dimensión</strong></td><td>Dimension</td><td><strong><code>VW PRUEBAS ENTREGA</code></strong></td><td><strong>NUEVA — PBI-01</strong></td></tr>
+        <tr><td>Perspectiva</td><td>Perspective</td><td><code>- GUIAS_ENTREGADAS_TIEMPO_PROMESA_RED_V2</code></td><td>Modificada</td></tr>
+        <tr><td>Rol</td><td>Role</td><td><code>340288_AJCUBO_CUBOS_PBI01_Ajuste_Cubo_GETP_PE</code></td><td>Nuevo</td></tr>
+      </tbody>
+    </table></div>
+    <div class="info-box success"><strong>Principio de diseño:</strong> el evolutivo es <em>aditivo</em>. Ninguna medida, jerarquía ni perspectiva existente se elimina o redefine.</div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 9 ══════════ -->
+<div class="doc-section" id="cap9">
+  <div class="section-header" onclick="toggleSection('body9',this)">
+    <div class="sec-num">9</div>
+    <div class="sec-title">Foco Especial: Evolutivo, Trazabilidad y Criterios de Aceptación</div>
+    <span class="sec-badge badge-green">Trazabilidad</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body9">
+    <h3>9.1 Trazabilidad completa del evolutivo</h3>
+    <div class="traza-step"><div class="traza-icon">1️⃣</div><div class="traza-info"><strong>Origen — Pruebas de Entrega Nacional</strong><span><code>SIG_COLOMBIA_DW.TMP.GETP_GUIAS_PRUEBA_ENTREGA</code>: número de guía y código de tipo de prueba.</span></div></div>
+    <div class="traza-step"><div class="traza-icon">2️⃣</div><div class="traza-info"><strong>Staging — TMP del proceso V2</strong><span><code>TMP.DEV_GETP_GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2</code>, inicializada con <code>ID_TIPO_ENTREGA = -1</code>.</span></div></div>
+    <div class="traza-step"><div class="traza-icon">3️⃣</div><div class="traza-info"><strong>ETL SSIS — P03 V2</strong><span>UPDATE con JOIN por <code>NUMERO_GUIA</code>; el tipo se propaga al consolidado y luego a la FAC.</span></div></div>
+    <div class="traza-step"><div class="traza-icon">4️⃣</div><div class="traza-info"><strong>DWH — FAC y DIM</strong><span><code>FAC.GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2</code> + <code>DIM_VW_PRUEBAS_ENTREGA</code>.</span></div></div>
+    <div class="traza-step"><div class="traza-icon">5️⃣</div><div class="traza-info"><strong>SSAS — DSV y dimensión</strong><span>Relación <code>VW PRUEBAS ENTREGA</code> ↔ hecho v2 por <code>ID_TIPO_ENTREGA</code>.</span></div></div>
+    <div class="traza-step"><div class="traza-icon">6️⃣</div><div class="traza-info"><strong>Cubo — Perspectiva RED_V2</strong><span>Segmentación habilitada; medidas GETP intactas. Rol del PBI aplicado.</span></div></div>
+
+    <h3>9.2 Diagrama vertical del cambio evolutivo</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg9')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 9.1 — Trazabilidad E2E del PBI-01</div>
+      <div class="mermaid" id="dg9">
+flowchart TD
+  A(["📋 PBI-01 340288<br/>Segmentar GETP por tipo de entrega"]) --> B["🏭 Pruebas de Entrega Nacional<br/>TMP.GETP_GUIAS_PRUEBA_ENTREGA"]
+  B --> C["⚙️ P03 RED Operativa V2<br/>UPDATE ID_TIPO_ENTREGA"]
+  C --> D["🗄️ TMP consolidado<br/>GUIAS_ENTREG_..._V2"]
+  D --> E["📊 FAC V2<br/>ID_TIPO_ENTREGA (-1 por defecto)"]
+  E --> F["📐 DIM_VW_PRUEBAS_ENTREGA<br/>ID y NOMBRE TIPO ENTREGA"]
+  F --> G["🧊 Cubo ENVIOS_MOVILIZADOS<br/>perspectiva RED_V2"]
+  G --> H(["✅ Análisis por físico / virtual / no disponible"])
+  style A fill:#0f172a,color:#94a3b8
+  style H fill:#10b981,color:#fff
+  style E fill:#00b0f0,color:#032b3b
+      </div>
+    </div>
+
+    <h3>9.3 Matriz de criterios de aceptación</h3>
+    <div class="ca-grid">
+      <div class="ca-card"><div class="ca-id">CA01</div><div class="ca-title">Identificación exclusiva del cubo v2</div><div class="ca-desc">El evolutivo aplica sólo a la perspectiva <code>GUIAS_ENTREGADAS_TIEMPO_PROMESA_RED_V2</code> y al grupo de medida v2. El cubo v1 no se altera.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA02</div><div class="ca-title">Entrega física</div><div class="ca-desc">Guías con prueba física quedan clasificadas como Entregado físico, visibles en el atributo <code>NOMBRE TIPO ENTREGA</code>.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA03</div><div class="ca-title">Entrega virtual</div><div class="ca-desc">Guías con evidencia digital quedan clasificadas como Entregado virtual, sin perder su valoración de cumplimiento.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA04</div><div class="ca-title">Envío sin tipo → No disponible</div><div class="ca-desc">Guías sin registro o con tipo nulo conservan <code>ID_TIPO_ENTREGA = -1</code> y se muestran como No disponible.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA05</div><div class="ca-title">Conservación del indicador</div><div class="ca-desc">La suma del indicador por tipo de entrega es igual al total sin segmentación; la fórmula GETP no se modifica.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA06</div><div class="ca-title">Información histórica 2026</div><div class="ca-desc">El repoblamiento se limita a 2026 mediante <code>FULL_FACH_INI/FIN</code>; no se retroalimentan periodos anteriores.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 10 ══════════ -->
+<div class="doc-section" id="cap10">
+  <div class="section-header" onclick="toggleSection('body10',this)">
+    <div class="sec-num">10</div>
+    <div class="sec-title">Capa de Visualización y Analítica (Cubo SSAS)</div>
+    <span class="sec-badge badge-green">OLAP</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body10">
+    <h3>10.1 Modelo estrella de la perspectiva v2</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg10')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 10.1 — Hecho v2 y dimensiones de la perspectiva RED_V2</div>
+      <div class="mermaid" id="dg10">
+flowchart TD
+  F["⭐ FAC_GUIAS_ENTREG_TIEMPO<br/>_PROMESA_RED_OPERATIVA_V2<br/>NUMERO_GUIA · TIME_ID<br/>ID_TIPO_ENTREGA 🆕"]
+  F --> D1["📅 TIEMPO"]
+  F --> D2["🌎 DIM_GEOGRAFIA_ORIGEN / DESTINO"]
+  F --> D3["📦 UEN_PRODUCTO_SUBPRODUCTO"]
+  F --> D4["🚚 RED_OPERATIVA"]
+  F --> D5["📋 CUMPLE TIEMPO PROMESA"]
+  F --> D6["🏷️ VW PRUEBAS ENTREGA 🆕<br/>ID TIPO ENTREGA<br/>NOMBRE TIPO ENTREGA"]
+  F --> D7["🧾 NUMERO GUIA PRUEBA ENTREGA"]
+  style F fill:#00b0f0,color:#032b3b,stroke:#0072b1
+  style D6 fill:#10b981,color:#fff
+      </div>
+    </div>
+
+    <h3>10.2 Contenido de la perspectiva</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Elemento</th><th>Visible en perspectiva</th><th>Observación</th></tr></thead>
+      <tbody>
+        <tr><td><code>TIEMPO</code></td><td>✅</td><td>Año, mes, día, trimestre, semana.</td></tr>
+        <tr><td><code>VW PRUEBAS ENTREGA</code></td><td>✅ 🆕</td><td>Atributos ID y NOMBRE TIPO ENTREGA.</td></tr>
+        <tr><td><code>RED_OPERATIVA</code></td><td>✅</td><td>Segmentación por red.</td></tr>
+        <tr><td><code>DIM_GEOGRAFIA_ORIGEN</code> / <code>DESTINO</code></td><td>✅</td><td>Ciudades, regionales y zonas.</td></tr>
+        <tr><td><code>CUMPLE TIEMPO PROMESA</code></td><td>✅</td><td>Dimensión de cumplimiento.</td></tr>
+        <tr><td><code>Uen_Producto_Subproducto</code></td><td>✅</td><td>Portafolio.</td></tr>
+        <tr><td><code>Cliente con Movimiento</code></td><td>✅</td><td>Cliente del envío.</td></tr>
+        <tr><td>Medidas <code>*_V2</code></td><td>✅</td><td>Sin cambios de fórmula.</td></tr>
+        <tr><td><code>MOXP MODO PAGO</code>, <code>ESTADO_ENVIO</code>, <code>RESPONSABLE</code>, <code>SE PROMESA CUMPLE ACIDA/DEPURADA</code></td><td>✅</td><td>Dimensiones heredadas de la v2.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>10.3 Consultas MDX de validación</h3>
+    <div class="code-block"><span class="cm">-- Distribución del indicador por tipo de entrega</span>
+<span class="kw">SELECT</span> [VW PRUEBAS ENTREGA].[NOMBRE TIPO ENTREGA].MEMBERS <span class="kw">ON</span> COLUMNS,
+       {[Measures].[Cant Guias TProm RED_V2]} <span class="kw">ON</span> ROWS
+<span class="kw">FROM</span> [GUIAS_ENTREGADAS_TIEMPO_PROMESA_RED_V2];
+
+<span class="cm">-- CA05: la suma por tipo debe igualar el total (sin filtro de tipo)</span>
+<span class="kw">WITH MEMBER</span> [Measures].[GETP_SIN_FILTRO] <span class="kw">AS</span>
+  <span class="fn">SUM</span>([VW PRUEBAS ENTREGA].[NOMBRE TIPO ENTREGA].MEMBERS,
+      [Measures].[Cant Guias TProm RED_V2])
+<span class="kw">SELECT</span> {[Measures].[Cant Guias TProm RED_V2],
+        [Measures].[GETP_SIN_FILTRO]} <span class="kw">ON</span> COLUMNS
+<span class="kw">FROM</span> [GUIAS_ENTREGADAS_TIEMPO_PROMESA_RED_V2];</div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar captura de Power BI con segmentación por NOMBRE TIPO ENTREGA sobre el indicador GETP]</span></div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar diagrama DSV y relaciones del cubo ENVIOS_MOVILIZADOS en SSDT]</span></div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 11 ══════════ -->
+<div class="doc-section" id="cap11">
+  <div class="section-header" onclick="toggleSection('body11',this)">
+    <div class="sec-num">11</div>
+    <div class="sec-title">Anexos y Apéndices Técnicos</div>
+    <span class="sec-badge badge-blue">Referencia</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body11">
+    <h3>11.1 Convenciones de nomenclatura</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Prefijo / patrón</th><th>Aplica a</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td><code>PAR_</code></td><td>Staging persistente</td><td>PAR_PRUEBA_ENTREGA</td></tr>
+        <tr><td><code>DIM_</code></td><td>Dimensiones</td><td>DIM_VW_PRUEBAS_ENTREGA</td></tr>
+        <tr><td><code>FAC_</code></td><td>Hechos</td><td>FAC_GUIAS_ENTREG_TIEMPO_PROMESA_RED_OPERATIVA_V2</td></tr>
+        <tr><td><code>TMP_</code></td><td>Temporales de proceso</td><td>TMP.DEV_GETP_..._V2</td></tr>
+        <tr><td><code>VW_</code></td><td>Vistas de soporte</td><td>VW_PRUEBA_ENTREGA</td></tr>
+        <tr><td><code>P0n_</code></td><td>Paquetes secuenciales</td><td>P03_SISMILENIO_..._V2.dtsx</td></tr>
+        <tr><td><code>00_</code></td><td>Paquetes maestros</td><td>00_Maestro_EnviosMovilizados.dtsx</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>11.2 Valores centinela</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Valor</th><th>Tipo</th><th>Significado</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td><code>-1</code></td><td>INT</td><td>No disponible / sin clasificación</td><td><code>ID_TIPO_ENTREGA</code> en esta solución.</td></tr>
+        <tr><td><code>-888</code></td><td>INT</td><td>Miembro desconocido en dimensiones heredadas</td><td>Dimensiones del modelo compartido.</td></tr>
+        <tr><td><code>'No disponible'</code></td><td>VARCHAR</td><td>Descriptor de ausencia de información</td><td><code>NOMBRE_TIPO_ENTREGA</code>.</td></tr>
+        <tr><td><code>1900-01-01</code></td><td>DATE</td><td>Fecha desconocida o nula</td><td>Campos de fecha del staging.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>11.3 Catálogo de códigos de error</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Código</th><th>Tipo</th><th>Descripción</th><th>Acción correctiva</th></tr></thead>
+      <tbody>
+        <tr><td><code>DTS_E_OLEDBERROR</code></td><td>ERROR</td><td>Fallo de conectividad OLE DB.</td><td>Validar Connection Managers y permisos de red.</td></tr>
+        <tr><td><code>DTS_E_LOOKUPROWNOTFOUND</code></td><td>WARNING</td><td>Guía sin correspondencia en pruebas de entrega.</td><td>Esperado: el registro debe quedar en <code>-1</code>.</td></tr>
+        <tr><td><code>DTS_E_PROCESSINGERROR</code></td><td>ERROR</td><td>Fallo del Analysis Services Execute.</td><td>Revisar disponibilidad del cubo y log de SSAS.</td></tr>
+        <tr><td><code>DTS_W_MAXIMUMERRORCOUNTREACHED</code></td><td>ERROR</td><td>Máximo de errores alcanzado en el flujo.</td><td>Depurar calidad de datos en TMP.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>11.4 Glosario técnico</h3>
+    <div class="accordion-group">
+      <div class="accordion-item"><div class="accordion-trigger" onclick="toggleAccordion('g1')">GETP — Guías Entregadas en Tiempo Promesa <span class="accordion-arrow">▶</span></div><div class="accordion-body" id="g1">Indicador que mide el porcentaje de guías entregadas dentro del tiempo prometido al cliente. Es el KPI central de la perspectiva v2.</div></div>
+      <div class="accordion-item"><div class="accordion-trigger" onclick="toggleAccordion('g2')">ISPAC — Integration Services Project Deployment <span class="accordion-arrow">▶</span></div><div class="accordion-body" id="g2">Artefacto compilado del proyecto SSIS desplegable en el catálogo SSISDB.</div></div>
+      <div class="accordion-item"><div class="accordion-trigger" onclick="toggleAccordion('g3')">DSV — Data Source View <span class="accordion-arrow">▶</span></div><div class="accordion-body" id="g3">Vista lógica del modelo relacional expuesta al cubo SSAS; en este evolutivo incorpora la dimensión VW PRUEBAS ENTREGA.</div></div>
+      <div class="accordion-item"><div class="accordion-trigger" onclick="toggleAccordion('g4')">ProcessUpdate vs. ProcessFull <span class="accordion-arrow">▶</span></div><div class="accordion-body" id="g4"><strong>ProcessUpdate</strong> refresca miembros de dimensión sin reprocesar hechos; <strong>ProcessFull</strong> reconstruye por completo la partición o dimensión.</div></div>
+      <div class="accordion-item"><div class="accordion-trigger" onclick="toggleAccordion('g5')">Dimensión degenerada <span class="accordion-arrow">▶</span></div><div class="accordion-body" id="g5">Atributo de negocio (por ejemplo <code>NUMERO_GUIA</code>) que permanece en la tabla de hechos sin tabla dimensional propia.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="doc-footer">
+  <strong>VIR_MT_ETL_ESTANDAR_ENVIOS_MOVILIZADOS_GETP_V2</strong> · Feature 340288-PC-AJCUBO · PBI-01<br>
+  Autor: John Cruz · Fecha: 2026-11-19 · Versión 1.0 · Confidencial — Uso interno
+</div>
+
+</main>
+
+<!-- ══════════ LIGHTBOX ══════════ -->
+<div id="zoomModal">
+  <div id="zoomContent">
+    <div class="zoom-toolbar">
+      <button class="zoom-btn" onclick="zoomIn()">＋ Acercar</button>
+      <button class="zoom-btn" onclick="zoomOut()">－ Alejar</button>
+      <button class="zoom-btn" onclick="zoomReset()">100%</button>
+      <button class="zoom-btn" onclick="zoomFit()">⛶ Ajustar</button>
+      <button class="zoom-btn" onclick="downloadDiagram()">⬇ Descargar SVG</button>
+      <span class="zoom-caption">Rueda del ratón para zoom · arrastrar para desplazar</span>
+      <button class="zoom-btn" onclick="closeZoom()">✕ Cerrar</button>
+    </div>
+    <div id="zoomInner"></div>
+  </div>
+</div>
+
+<script>
+mermaid.initialize({startOnLoad:true,securityLevel:'loose',theme:'base',themeVariables:{
+  primaryColor:'#00b0f0',primaryTextColor:'#032b3b',primaryBorderColor:'#0072b1',
+  lineColor:'#64748b',secondaryColor:'#e6f7fd',tertiaryColor:'#f8fafc',fontSize:'13px'}});
+
+/* THEME */
+function toggleTheme(){
+  const h=document.body;
+  const dark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('themeToggle').textContent=dark?'🌙 Claro':'☀️ Oscuro';
+  localStorage.setItem('theme',dark?'light':'dark');
+}
+(function(){
+  const t=localStorage.getItem('theme');
+  if(t){document.body.setAttribute('data-theme',t);
+    document.getElementById('themeToggle').textContent=t==='dark'?'☀️ Oscuro':'🌙 Claro';}
+})();
+
+/* SECTION WRAP / UNWRAP */
+function toggleSection(id,header){
+  const body=document.getElementById(id);
+  const collapsed=body.classList.toggle('collapsed');
+  const btn=header&&header.querySelector('.section-toggle');
+  if(btn) btn.textContent=collapsed?'Desenvolver':'Envolver';
+}
+function wrapAll(){
+  document.querySelectorAll('.section-body').forEach(b=>{
+    b.classList.add('collapsed');
+    const btn=b.parentElement.querySelector('.section-toggle');
+    if(btn) btn.textContent='Desenvolver';
+  });
+}
+function unwrapAll(){
+  document.querySelectorAll('.section-body').forEach(b=>{
+    b.classList.remove('collapsed');
+    const btn=b.parentElement.querySelector('.section-toggle');
+    if(btn) btn.textContent='Envolver';
+  });
+}
+
+/* ACCORDION */
+function toggleAccordion(id){
+  const body=document.getElementById(id);
+  if(!body) return;
+  const trigger=body.previousElementSibling;
+  body.classList.toggle('open');
+  if(trigger) trigger.classList.toggle('open');
+}
+
+/* TREE */
+function toggleBranch(id){
+  const ch=document.getElementById(id);
+  const arr=document.getElementById('arr-'+id);
+  const open=ch.classList.toggle('open');
+  if(arr) arr.classList.toggle('open',open);
+}
+function expandAll(){
+  document.querySelectorAll('.tree-children').forEach(c=>c.classList.add('open'));
+  document.querySelectorAll('.tree-arrow').forEach(a=>a.classList.add('open'));
+}
+function collapseAll(){
+  document.querySelectorAll('.tree-children').forEach(c=>c.classList.remove('open'));
+  document.querySelectorAll('.tree-arrow').forEach(a=>a.classList.remove('open'));
+}
+function navTo(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+  const body=el.querySelector('.section-body');
+  if(body){body.classList.remove('collapsed');
+    const btn=el.querySelector('.section-toggle'); if(btn) btn.textContent='Envolver';}
+  document.querySelectorAll('.tree-leaf').forEach(l=>l.classList.remove('active'));
+  document.querySelectorAll('.tree-leaf').forEach(l=>{
+    if((l.getAttribute('onclick')||'').includes(id)) l.classList.add('active');
+  });
+  if(window.innerWidth<=1024) document.getElementById('sidebar').classList.remove('open');
+}
+
+/* SEARCH */
+function filterContent(q){
+  const term=(q||'').toLowerCase().trim();
+  document.querySelectorAll('.doc-section').forEach(s=>{
+    s.style.display=(!term||s.textContent.toLowerCase().includes(term))?'':'none';
+  });
+}
+
+/* LIGHTBOX ZOOM */
+let zScale=1, curSource=null;
+function openZoom(id){
+  const src=document.getElementById(id);
+  if(!src) return;
+  curSource=src;
+  const inner=document.getElementById('zoomInner');
+  inner.innerHTML=src.innerHTML;
+  inner.style.transform='scale(1)'; zScale=1;
+  document.getElementById('zoomModal').classList.add('open');
+  const nodes=inner.querySelectorAll('.mermaid');
+  if(window.mermaid&&nodes.length){
+    try{mermaid.run({nodes:nodes});}catch(e){console.warn(e);}
+  }
+}
+function closeZoom(){
+  document.getElementById('zoomModal').classList.remove('open');
+  document.getElementById('zoomInner').innerHTML='';
+}
+function zoomIn(){zScale=Math.min(zScale+0.2,4);applyZoom();}
+function zoomOut(){zScale=Math.max(zScale-0.2,0.3);applyZoom();}
+function zoomReset(){zScale=1;applyZoom();}
+function zoomFit(){zScale=1;applyZoom();}
+function applyZoom(){document.getElementById('zoomInner').style.transform='scale('+zScale+')';}
+function downloadDiagram(){
+  const inner=document.getElementById('zoomInner');
+  const svg=inner.querySelector('svg');
+  if(!svg){alert('El diagrama aún no está renderizado.');return;}
+  const clone=svg.cloneNode(true);
+  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const blob=new Blob([new XMLSerializer().serializeToString(clone)],{type:'image/svg+xml'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='diagrama_GETP_V2.svg';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.getElementById('zoomModal').addEventListener('click',function(e){if(e.target===this)closeZoom();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeZoom();});
+document.getElementById('zoomInner').addEventListener('wheel',function(e){
+  e.preventDefault();
+  if(e.deltaY<0)zoomIn();else zoomOut();
+},{passive:false});
+
+/* DRAG TO PAN */
+(function(){
+  const inner=document.getElementById('zoomInner');
+  let down=false,sx=0,sy=0,sl=0,st=0;
+  inner.addEventListener('mousedown',e=>{
+    if(zScale<=1) return;
+    down=true;inner.classList.add('grabbing');
+    sx=e.clientX;sy=e.clientY;sl=inner.scrollLeft;st=inner.scrollTop;
+  });
+  window.addEventListener('mouseup',()=>{down=false;inner.classList.remove('grabbing');});
+  inner.addEventListener('mousemove',e=>{
+    if(!down)return;
+    inner.scrollLeft=sl-(e.clientX-sx);
+    inner.scrollTop=st-(e.clientY-sy);
+  });
+})();
+
+/* ACTIVE LEAF ON SCROLL */
+window.addEventListener('scroll',()=>{
+  let current='';
+  document.querySelectorAll('.doc-section').forEach(s=>{
+    if(window.scrollY+s.offsetTop-90<=window.scrollY) current=s.id;
+  });
+},{passive:true});
+</script>
+</body>
+</html>

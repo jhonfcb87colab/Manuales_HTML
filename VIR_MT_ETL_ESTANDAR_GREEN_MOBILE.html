@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIR_MT_ETL_ESTANDAR — Cubo Green Mobile | PBI-02</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --primary:#00b0f0;--primary-dark:#0072b1;--primary-light:#e6f7fd;--secondary:#005a8c;
+  --bg-main:#f8fafc;--bg-card:#ffffff;--bg-sidebar:#0f172a;
+  --text-main:#1e293b;--text-muted:#64748b;--border:#e2e8f0;
+  --success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;
+  --code-bg:#1e293b;--code-text:#e2e8f0;--radius:12px;--shadow:0 1px 4px rgba(0,0,0,.06);
+}
+[data-theme="dark"]{
+  --bg-main:#0b1120;--bg-card:#1e293b;--bg-sidebar:#070d17;
+  --text-main:#f1f5f9;--text-muted:#94a3b8;--border:#334155;--primary-light:#0d2a3a;
+  --shadow:0 1px 6px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);min-height:100vh}
+.sidebar{width:290px;background:var(--bg-sidebar);color:#cbd5e1;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:120;transition:transform .3s;display:flex;flex-direction:column}
+.brand{padding:20px 16px;border-bottom:1px solid #1e3a5f}
+.brand-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#00b0f0,#005a8c);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}
+.brand-title{font-size:13px;font-weight:700;color:#f1f5f9;line-height:1.3}
+.brand-sub{font-size:10px;color:#64748b;margin-top:4px;letter-spacing:.4px}
+.sidebar-controls{padding:10px 12px;border-bottom:1px solid #1e3a5f;display:flex;gap:6px;flex-wrap:wrap}
+.sidebar-controls button{background:#1e3a5f;border:none;color:#94a3b8;font-size:10.5px;padding:5px 9px;border-radius:5px;cursor:pointer;font-family:inherit}
+.sidebar-controls button:hover{background:var(--primary);color:#fff}
+.tree-nav{padding:10px 0 24px;flex:1}
+.tree-node{user-select:none}
+.tree-parent{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;font-size:11.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px}
+.tree-parent:hover{color:var(--primary)}
+.tree-arrow{font-size:9px;transition:transform .2s;display:inline-block}
+.tree-arrow.open{transform:rotate(90deg)}
+.tree-children{display:none;padding-left:14px;border-left:1px solid #1e3a5f;margin-left:22px}
+.tree-children.open{display:block}
+.tree-leaf{display:block;padding:6px 10px;font-size:11.5px;color:#64748b;text-decoration:none;border-left:2px solid transparent;cursor:pointer;line-height:1.35}
+.tree-leaf:hover,.tree-leaf.active{color:var(--primary);border-left-color:var(--primary);background:#0d2a3a}
+.tree-sub{font-weight:600;color:#7c93ad}
+.top-header{position:fixed;top:0;left:290px;right:0;height:56px;background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;z-index:100;box-shadow:var(--shadow)}
+.search-box{flex:1;max-width:330px;position:relative}
+.search-box input{width:100%;padding:7px 12px 7px 32px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;background:var(--bg-main);color:var(--text-main);outline:none;font-family:inherit}
+.search-box::before{content:'🔍';position:absolute;left:10px;top:7px;font-size:13px}
+.header-actions{display:flex;gap:7px;margin-left:auto;align-items:center}
+.btn{padding:6px 13px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-outline{background:transparent;border:1px solid var(--primary);color:var(--primary)}
+.btn-outline:hover{background:var(--primary-light)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-ghost{background:var(--bg-main);border:1px solid var(--border);color:var(--text-muted)}
+.hamburger{display:none;background:var(--bg-main);border:1px solid var(--border);border-radius:7px;padding:6px 9px;cursor:pointer;font-size:14px}
+.main-content{margin-left:290px;margin-top:56px;padding:30px;min-height:calc(100vh - 56px)}
+.hero-banner{background:linear-gradient(135deg,#0f172a 0%,#0d2a3a 60%,#0a3d5c 100%);border-radius:16px;padding:38px;margin-bottom:28px;color:#fff;position:relative;overflow:hidden}
+.hero-banner::before{content:'';position:absolute;top:-60px;right:-60px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(0,176,240,.16),transparent 70%)}
+.hero-tag{display:inline-block;background:rgba(0,176,240,.2);color:#00b0f0;border:1px solid rgba(0,176,240,.4);border-radius:20px;padding:4px 14px;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+.hero-banner h1{font-size:25px;font-weight:800;line-height:1.3;margin-bottom:10px}
+.hero-banner p{font-size:13.5px;color:#94a3b8;max-width:760px;line-height:1.65}
+.hero-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-top:26px}
+.metric-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px;cursor:pointer;position:relative;transition:background .2s}
+.metric-card:hover{background:rgba(0,176,240,.16)}
+.metric-val{font-size:20px;font-weight:800;color:#00b0f0}
+.metric-lbl{font-size:10.5px;color:#94a3b8;margin-top:4px;line-height:1.4}
+.metric-icon{position:absolute;top:10px;right:12px;font-size:14px;opacity:.8}
+.kpi-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:0;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px 14px;font-size:11.5px;color:#e2e8f0;min-width:230px;max-width:300px;z-index:210;box-shadow:0 10px 28px rgba(0,0,0,.45);line-height:1.6}
+.metric-card:hover .kpi-tooltip,.metric-card:focus .kpi-tooltip{display:block}
+.doc-section{background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:20px;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:70px}
+.section-header{display:flex;align-items:center;gap:12px;padding:16px 22px;cursor:pointer;user-select:none;transition:background .2s}
+.section-header:hover{background:var(--primary-light)}
+.sec-num{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-title{flex:1;font-size:14.5px;font-weight:700}
+.sec-badge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-orange{background:#fef3c7;color:#92400e}
+.badge-new{background:#00b0f0;color:#032b3b}
+.badge-mod{background:#f59e0b;color:#3b2503}
+.section-toggle{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;color:var(--text-muted);font-family:inherit;white-space:nowrap}
+.section-toggle:hover{border-color:var(--primary);color:var(--primary)}
+.section-body{padding:22px}
+.section-body.collapsed{display:none}
+h2{font-size:16.5px;font-weight:700;margin:20px 0 10px}
+h3{font-size:13.5px;font-weight:700;margin:16px 0 8px;color:var(--primary-dark)}
+p{font-size:13px;line-height:1.7;margin-bottom:10px}
+ul,ol{font-size:13px;line-height:1.8;padding-left:20px;margin-bottom:10px}
+code{font-family:'Fira Code',monospace;font-size:11.8px;background:var(--primary-light);color:var(--primary-dark);padding:1px 5px;border-radius:4px}
+strong{font-weight:700}
+.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);margin:12px 0}
+.data-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.data-table th{background:var(--primary);color:#032b3b;padding:9px 12px;text-align:left;font-weight:700;font-size:11.5px;white-space:nowrap}
+[data-theme="dark"] .data-table th{background:var(--primary-dark);color:#fff}
+.data-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.55}
+.data-table tr:nth-child(even) td{background:var(--primary-light)}
+.data-table tr:hover td{background:#e0f4fb}
+[data-theme="dark"] .data-table tr:hover td{background:#0d2a3a}
+.code-block{background:var(--code-bg);color:var(--code-text);font-family:'Fira Code','Consolas',monospace;font-size:11.5px;padding:15px 18px;border-radius:10px;overflow-x:auto;line-height:1.7;margin:12px 0;border:1px solid #334155;white-space:pre}
+.code-block .kw{color:#60a5fa}.code-block .str{color:#a3e635}.code-block .cm{color:#64748b;font-style:italic}.code-block .fn{color:#f9a825}
+.diagram-wrap{background:var(--bg-main);border:1px solid var(--border);border-radius:10px;padding:18px;margin:14px 0;text-align:center;position:relative;cursor:zoom-in}
+.diagram-label{font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.zoom-hint{position:absolute;top:9px;right:9px;background:rgba(0,176,240,.15);color:var(--primary);font-size:9.5px;padding:3px 8px;border-radius:10px;border:1px solid rgba(0,176,240,.3);z-index:2}
+.mermaid{overflow-x:auto}
+.accordion-group{margin:10px 0}
+.accordion-item{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;background:var(--bg-card)}
+.accordion-trigger{padding:11px 15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;font-weight:600;user-select:none}
+.accordion-trigger:hover{background:var(--primary-light)}
+.accordion-arrow{font-size:10px;transition:transform .2s}
+.accordion-trigger.open .accordion-arrow{transform:rotate(90deg)}
+.accordion-body{display:none;padding:14px 16px;border-top:1px solid var(--border);font-size:12.8px;line-height:1.7}
+.accordion-body.open{display:block}
+.evidence-box{display:flex;flex-direction:column;gap:4px;background:#fef3c7;border:1px dashed #f59e0b;border-radius:8px;padding:11px 15px;font-size:11.5px;color:#92400e;margin:10px 0}
+[data-theme="dark"] .evidence-box{background:#3b2b06;color:#fbbf24;border-color:#b45309}
+.info-box{border-radius:8px;padding:12px 15px;margin:10px 0;font-size:12.5px;line-height:1.65}
+.info-box.info{background:#dbeafe;border-left:4px solid var(--info);color:#1e3a5f}
+.info-box.success{background:#d1fae5;border-left:4px solid var(--success);color:#064e3b}
+.info-box.warning{background:#fef3c7;border-left:4px solid var(--warning);color:#78350f}
+.info-box.danger{background:#fee2e2;border-left:4px solid var(--danger);color:#7f1d1d}
+[data-theme="dark"] .info-box{background:#0d2a3a;color:#cbd5e1}
+.chip{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;margin:1px 2px}
+.chip-blue{background:#dbeafe;color:#1d4ed8}
+.chip-green{background:#d1fae5;color:#065f46}
+.chip-orange{background:#fef3c7;color:#92400e}
+.ca-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px;margin:14px 0}
+.ca-card{border:1px solid var(--border);border-radius:10px;padding:14px 15px;background:var(--bg-card)}
+.ca-id{font-size:10.5px;font-weight:800;color:var(--primary);letter-spacing:.5px}
+.ca-title{font-size:12.5px;font-weight:700;margin:4px 0}
+.ca-desc{font-size:11.5px;color:var(--text-muted);line-height:1.55}
+.ca-status{display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:7px}
+.status-ok{background:#d1fae5;color:#065f46}
+.traza-step{display:flex;gap:13px;padding:11px 0;border-bottom:1px solid var(--border)}
+.traza-step:last-child{border-bottom:none}
+.traza-icon{font-size:18px;flex-shrink:0}
+.traza-info strong{font-size:12.5px;display:block;margin-bottom:2px}
+.traza-info span{font-size:11.8px;color:var(--text-muted);line-height:1.6}
+.doc-footer{text-align:center;padding:28px 0 10px;color:var(--text-muted);font-size:11.5px;border-top:1px solid var(--border);margin-top:18px}
+#zoomModal{display:none;position:fixed;inset:0;background:rgba(2,6,23,.82);backdrop-filter:blur(6px);z-index:999;padding:24px}
+#zoomModal.open{display:flex;flex-direction:column}
+#zoomContent{flex:1;position:relative;background:var(--bg-card);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.zoom-toolbar{display:flex;gap:7px;padding:10px 14px;border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap;background:var(--bg-card)}
+.zoom-btn{background:var(--bg-main);border:1px solid var(--border);border-radius:7px;padding:5px 11px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--text-main)}
+.zoom-btn:hover{border-color:var(--primary);color:var(--primary)}
+#zoomInner{flex:1;overflow:auto;padding:20px;transform-origin:top left;cursor:grab}
+#zoomInner.grabbing{cursor:grabbing}
+.zoom-caption{margin-left:auto;font-size:10.5px;color:var(--text-muted)}
+@media print{
+  .sidebar,.top-header,.section-toggle,.zoom-hint,.hamburger{display:none!important}
+  .main-content{margin:0;padding:14px}
+  .section-body.collapsed{display:block!important}
+  .doc-section{break-inside:avoid;box-shadow:none}
+  .accordion-body{display:block!important}
+}
+@media(max-width:1024px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .top-header{left:0}
+  .main-content{margin-left:0;padding:16px}
+  .hamburger{display:block}
+  .search-box{max-width:none}
+}
+@media(max-width:640px){
+  .hero-banner{padding:24px 18px}
+  .hero-banner h1{font-size:19px}
+  .section-header{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-icon">🟢</div>
+    <div class="brand-title">Cubo Gestión en Línea<br>Green Mobile</div>
+    <div class="brand-sub">PBI-02 · 340289-AJCUBO-CUBOS · VIR_MT_ETL_ESTANDAR</div>
+  </div>
+  <div class="sidebar-controls">
+    <button onclick="expandAll()">▼ Expandir</button>
+    <button onclick="collapseAll()">▶ Colapsar</button>
+    <button onclick="wrapAll()">Envolver todo</button>
+  </div>
+  <nav class="tree-nav">
+    <div class="tree-node">
+      <div class="tree-parent" onclick="toggleBranch('br-sec')"><span class="tree-arrow" id="arr-br-sec">▶</span>Contenido</div>
+      <div class="tree-children" id="br-sec">
+        <a class="tree-leaf" onclick="navTo('cap1')">1 · Control de Cambios</a>
+        <a class="tree-leaf" onclick="navTo('cap2')">2 · Introducción y Objetivos</a>
+        <a class="tree-leaf" onclick="navTo('cap3')">3 · Arquitectura E2E</a>
+        <a class="tree-leaf" onclick="navTo('cap4')">4 · Diccionario de Datos</a>
+        <a class="tree-leaf" onclick="navTo('cap5')">5 · Paquetes SSIS</a>
+        <a class="tree-leaf" onclick="navTo('cap6')">6 · Despliegue ISPAC</a>
+        <a class="tree-leaf" onclick="navTo('cap7')">7 · Auditoría y Logging</a>
+        <a class="tree-leaf" onclick="navTo('cap8')">8 · Lógica de Negocio</a>
+        <a class="tree-leaf" onclick="navTo('cap9')">9 · Evolutivo y Criterios</a>
+        <a class="tree-leaf" onclick="navTo('cap10')">10 · Cubo SSAS</a>
+        <a class="tree-leaf" onclick="navTo('cap11')">11 · Anexos</a>
+      </div>
+    </div>
+    <div class="tree-node">
+      <div class="tree-parent" onclick="toggleBranch('br-evo')"><span class="tree-arrow" id="arr-br-evo">▶</span>Evolutivo PBI-02</div>
+      <div class="tree-children" id="br-evo">
+        <a class="tree-leaf tree-sub" onclick="navTo('cap8')">Ventana 0 a 24</a>
+        <a class="tree-leaf" onclick="navTo('cap8')">Dimensión CPL</a>
+        <a class="tree-leaf" onclick="navTo('cap8')">Todas las ciudades</a>
+        <a class="tree-leaf" onclick="navTo('cap9')">Trazabilidad E2E</a>
+        <a class="tree-leaf" onclick="navTo('cap9')">Matriz CA01–CA10</a>
+      </div>
+    </div>
+    <div class="tree-node">
+      <div class="tree-parent" onclick="toggleBranch('br-ref')"><span class="tree-arrow" id="arr-br-ref">▶</span>Referencia rápida</div>
+      <div class="tree-children" id="br-ref">
+        <a class="tree-leaf" onclick="navTo('cap6')">Parámetros del proyecto</a>
+        <a class="tree-leaf" onclick="navTo('cap10')">Miembros calculados MDX</a>
+        <a class="tree-leaf" onclick="navTo('cap11')">Valores centinela</a>
+        <a class="tree-leaf" onclick="navTo('cap11')">Glosario</a>
+      </div>
+    </div>
+  </nav>
+</aside>
+
+<!-- ══════════ HEADER ══════════ -->
+<header class="top-header">
+  <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <div class="search-box"><input id="globalSearch" type="text" placeholder="Buscar en el manual…" oninput="filterContent(this.value)"></div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="unwrapAll()">Desenvolver todo</button>
+    <button class="btn btn-ghost" onclick="wrapAll()">Envolver todo</button>
+    <a class="btn btn-primary" href="VIR_MT_ETL_ESTANDAR_GREEN_MOBILE.docx" download>⬇ DOCX</a>
+    <button class="btn btn-outline" onclick="window.print()">🖨 PDF</button>
+    <button class="btn btn-ghost" id="themeToggle" onclick="toggleTheme()">🌙 Claro</button>
+  </div>
+</header>
+
+<main class="main-content">
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero-banner" id="hero">
+  <div class="hero-tag">340289-AJCUBO-CUBOS-PBI02 · Manual Técnico-Funcional</div>
+  <h1>Cubo Gestión en Línea — Green Mobile<br>Manual ETL (SSIS) y SSAS</h1>
+  <p>Documentación del evolutivo sobre la perspectiva <strong>OPORTUNIDAD REGISTRO GESTION EN LINEA</strong> del cubo <strong>GREEN_MOBILE</strong>: nueva medida <em>Efectividad 0 a 24</em>, incorporación de la dimensión <strong>CPL</strong>, habilitación de todas las ciudades de distribución y control de días posteriores a la salida a zona urbana.</p>
+  <div class="hero-metrics">
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">⏱️</div>
+      <div class="metric-val">4</div>
+      <div class="metric-lbl">Ventanas horarias coexistentes</div>
+      <div class="kpi-tooltip"><strong>Ventanas de efectividad</strong>06:00–14:00 (Efectividad 6 a 2), 06:00–15:00 (Efectividad 6 am a 3 pm), 06:00–18:00 (Efectividad 6 a 6) y la nueva 00:00:01–23:59:59 (Efectividad 0 a 24). Ninguna se elimina.</div>
+    </div>
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">🏢</div>
+      <div class="metric-val">1</div>
+      <div class="metric-lbl">Dimensión CPL incorporada</div>
+      <div class="kpi-tooltip"><strong>GM CPL DISTRIBUCION</strong>Atributos: <code>CPL</code>, <code>ID CIUDAD ANEXA</code>, <code>NOMBRE CIUDAD</code>, <code>NOMBRE REGIONAL</code>. Visible en la perspectiva de Gestión en Línea.</div>
+    </div>
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">🏙️</div>
+      <div class="metric-val">Todas</div>
+      <div class="metric-lbl">Ciudades de distribución habilitadas</div>
+      <div class="kpi-tooltip"><strong>Cobertura ampliada</strong>El parámetro <code>StrCiudadesGMD</code> queda documentado como “AHORA APLICAN TODAS” y <code>StrCiudadesGMR</code> toma todas las ciudades de <code>PARAMETROS.DBO.CIUDADES</code>.</div>
+    </div>
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">🧮</div>
+      <div class="metric-val">MDX</div>
+      <div class="metric-lbl">Miembro calculado Efectividad 0 a 24</div>
+      <div class="kpi-tooltip"><strong>Fórmula</strong>Suma de <code>Cantidad Guias</code> para <code>[GM HORA DISTRIBUCION].[GRUPO GESTION EN LINEA]</code> 1 a 12, dividida entre <code>[Measures].[Cantidad Guias]</code>, formato porcentaje.</div>
+    </div>
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">📅</div>
+      <div class="metric-val">2026</div>
+      <div class="metric-lbl">Alcance de repoblamiento</div>
+      <div class="kpi-tooltip"><strong>Repoblamiento</strong>El paquete <code>000REPOBLAR_A_DESARROLLO.dtsx</code> y la ventana de recarga se orientan al año 2026.</div>
+    </div>
+    <div class="metric-card" tabindex="0">
+      <div class="metric-icon">🛡️</div>
+      <div class="metric-val">0</div>
+      <div class="metric-lbl">Afectación a Torre de Control</div>
+      <div class="kpi-tooltip"><strong>Indicadores preservados</strong>Los indicadores vigentes de Torre de Control y de Eficiencia en Recolección no se modifican (CA10).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CAP 1 ══════════ -->
+<div class="doc-section" id="cap1">
+  <div class="section-header" onclick="toggleSection('body1',this)">
+    <div class="sec-num">1</div>
+    <div class="sec-title">Control de Cambios y Versiones</div>
+    <span class="sec-badge badge-blue">Auditoría</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body1">
+    <p style="color:var(--text-muted);font-size:12.5px">Registro oficial de versiones del manual técnico-funcional. Toda modificación debe registrarse con versión incremental, componentes afectados y descripción detallada.</p>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Componentes afectados</th><th>Tipo</th><th>Descripción del evolutivo</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>1.0</strong></td>
+          <td>2026-11-19</td>
+          <td>John Cruz</td>
+          <td>
+            <span class="chip chip-blue">EXTRACCION DISTRIBUCION GM.dtsx</span>
+            <span class="chip chip-blue">TRANSFORMACION DISTRIBUCION GM.dtsx</span>
+            <span class="chip chip-blue">CARGA DISTRIBUCION GM.dtsx</span>
+            <span class="chip chip-orange">MODELO GREEN MOBILE.ispac</span>
+            <span class="chip chip-green">DIM GM CPL DISTRIBUCION</span>
+            <span class="chip chip-green">Miembro MDX Efectividad 0 a 24</span>
+          </td>
+          <td><span class="sec-badge badge-new">NUEVO</span></td>
+          <td><strong>Creación inicial.</strong> Evolutivo del PBI 340289: (1) nueva medida <em>Efectividad 0 a 24</em> sobre la ventana 00:00:01–23:59:59, coexistiendo con 06:00–14:00, 06:00–15:00 y 06:00–18:00; (2) incorporación de la dimensión <strong>GM CPL DISTRIBUCION</strong>; (3) habilitación de todas las ciudades configuradas para distribución (<code>StrCiudadesGMD = “AHORA APLICAN TODAS”</code>); (4) inclusión de todos los tipos de manifiesto; (5) control de días posteriores a la salida a zona urbana; (6) registros sin dimensión → “No disponible” (<code>-888</code>/<code>NO REPORTADO</code>); (7) repoblamiento 2026.</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <h3>1.1 Componentes del proyecto afectados</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Componente</th><th>Tipo</th><th>Ubicación</th><th>Cambio realizado</th></tr></thead>
+      <tbody>
+        <tr><td><code>EXTRACCION DISTRIBUCION GM.dtsx</code></td><td>Paquete SSIS</td><td>ETL\GM_GREEN_MOBILE_HU_AJCUBO-CUBOS-PBI02</td><td>Construcción e incremento de <code>DIM GM CPL DISTRIBUCION</code>; extracción de guías, documentos y seguimiento; parámetro de ciudades sin restricción.</td></tr>
+        <tr><td><code>TRANSFORMACION DISTRIBUCION GM.dtsx</code></td><td>Paquete SSIS</td><td>ETL\...\GM_GREEN_MOBILE_HU_AJCUBO-CUBOS-PBI02</td><td>Bucle por día de distribución, extracción de SZU/RPO y consolidación de <code>TMP.GM_DISTRIBUCION</code>.</td></tr>
+        <tr><td><code>CARGA DISTRIBUCION GM.dtsx</code></td><td>Paquete SSIS</td><td>ETL\...\GM_GREEN_MOBILE_HU_AJCUBO-CUBOS-PBI02</td><td>TRUNCATE + carga de <code>FAC.GM_DISTRIBUCION</code>.</td></tr>
+        <tr><td><code>SISMILENIO_EXTRAER_GM_HORA_DISTRIBUCION.dtsx</code></td><td>Paquete SSIS</td><td>ETL\...\GM_GREEN_MOBILE_HU_AJCUBO-CUBOS-PBI02</td><td>Poblamiento de <code>DIM.GM_HORA_DISTRIBUCION</code>, incluidos los grupos de gestión en línea.</td></tr>
+        <tr><td><code>000REPOBLAR_A_DESARROLLO.dtsx</code></td><td>Paquete SSIS</td><td>ETL\...\GM_GREEN_MOBILE_HU_AJCUBO-CUBOS-PBI02</td><td>Repoblamiento de la FAC para el periodo 2026.</td></tr>
+        <tr><td><code>GREEN_MOBILE.cube</code></td><td>Cubo SSAS</td><td>OLAP\SSAS_GM_GREEN_MOBILE</td><td>Miembro calculado <em>Efectividad 0 a 24</em>; dimensión CPL en la perspectiva.</td></tr>
+        <tr><td><code>GM CPL DISTRIBUCION.dim</code></td><td>Dimensión SSAS</td><td>OLAP\SSAS_GM_GREEN_MOBILE</td><td>Nueva dimensión de CPL y ciudad anexa.</td></tr>
+        <tr><td><code>GM_HORA_DISTRIBUCION.dim</code></td><td>Dimensión SSAS</td><td>OLAP\SSAS_GM_GREEN_MOBILE</td><td>Atributos <code>HORA REPORTE</code>, <code>GRUPO GESTION EN LINEA</code>, <code>GRUPO EFECTIVIDAD</code>.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 2 ══════════ -->
+<div class="doc-section" id="cap2">
+  <div class="section-header" onclick="toggleSection('body2',this)">
+    <div class="sec-num">2</div>
+    <div class="sec-title">Introducción y Objetivos de la Solución</div>
+    <span class="sec-badge badge-blue">Contexto</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body2">
+    <div class="accordion-group">
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a2a')">🎯 2.1 Propósito de negocio <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a2a">
+          <p><strong>Green Mobile</strong> es la plataforma de gestión en línea de distribución. Su cubo permite a la Torre de Control y a los líderes regionales medir la efectividad de las gestiones de entrega. Hasta la versión anterior, la medición se restringía a franjas parciales (06:00–14:00, 06:00–15:00 y 06:00–18:00) y a un conjunto limitado de ciudades, generando puntos ciegos operativos.</p>
+          <p>El evolutivo amplía la cobertura analítica con una medida de <strong>día completo (0 a 24)</strong>, la segmentación por <strong>CPL</strong>, la habilitación de <strong>todas las ciudades</strong> de distribución y un control explícito de <strong>días posteriores</strong> a la salida a zona urbana.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a2b')">📋 2.2 Contexto del PBI <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a2b">
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Atributo</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>ID PBI</td><td><strong>340289-AJCUBO-CUBOS-PBI02</strong></td></tr>
+              <tr><td>Feature padre</td><td>340288-PC-AJCUBO — Ajustes de Cubos de Gestión</td></tr>
+              <tr><td>Título</td><td>Cubo Green Mobile — Efectividad 0 a 24 + CPL + todas las ciudades</td></tr>
+              <tr><td>Cubo SSAS</td><td><code>GREEN_MOBILE</code> (base <code>SSAS_GM_GREEN_MOBILE</code>)</td></tr>
+              <tr><td>Perspectiva</td><td><code>OPORTUNIDAD REGISTRO GESTION EN LINEA</code></td></tr>
+              <tr><td>ISPAC producción</td><td><code>MODELO GREEN MOBILE</code></td></tr>
+              <tr><td>Grupo de medida</td><td><code>OPORTUNIDAD REGISTRO GESTION EN LINEA</code></td></tr>
+              <tr><td>Ruta ETL</td><td><code>ETL\GM_GREEN_MOBILE_HU_AJCUBO-CUBOS-PBI02</code></td></tr>
+              <tr><td>Ruta cubo</td><td><code>OLAP\SSAS_GM_GREEN_MOBILE</code></td></tr>
+              <tr><td>Alcance histórico</td><td>Año 2026</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a2c')">🗺️ 2.3 Alcance integral <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a2c">
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Capa</th><th>Componente</th><th>Alcance del evolutivo</th></tr></thead>
+            <tbody>
+              <tr><td>Ingesta</td><td>SIG_COLOMBIA_DW / SIG_COL_LOGISTICA_DW</td><td>Guías, seguimiento de envío, documentos, zonas urbanas y catálogo de ciudades.</td></tr>
+              <tr><td>Transformación</td><td>SSIS Distribución (extracción, transformación y carga)</td><td>Eliminación de la restricción de ciudades y cálculo de días posteriores.</td></tr>
+              <tr><td>Carga</td><td><code>FAC.GM_DISTRIBUCION</code> + <code>DIM.GM_HORA_DISTRIBUCION</code> + <code>DIM GM CPL DISTRIBUCION</code></td><td>Persistencia de la granularidad de gestión y sus dimensiones.</td></tr>
+              <tr><td>Modelado OLAP</td><td>Cubo GREEN_MOBILE</td><td>Miembro calculado <em>Efectividad 0 a 24</em>; CPL en perspectiva.</td></tr>
+              <tr><td>Visualización</td><td>Power BI / Reporting Services / Torre de Control</td><td>Nueva medida y dimensión disponibles; indicadores vigentes intactos.</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a2d')">⚠️ 2.4 Supuestos y restricciones <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a2d">
+          <ul>
+            <li>El evolutivo es <strong>aditivo</strong>: no elimina ni altera las ventanas vigentes ni los indicadores de Torre de Control.</li>
+            <li>La nueva ventana 00:00:01–23:59:59 se implementa como <strong>miembro calculado MDX</strong>, no como cambio destructivo de cubo.</li>
+            <li>Las gestiones de días posteriores se identifican por su propia clave de tiempo; no se imputan al día de salida.</li>
+            <li>Los registros sin información dimensional se clasifican como <strong>No disponible</strong> mediante miembros centinela.</li>
+            <li>El repoblamiento inicial se orienta al año <strong>2026</strong>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 3 ══════════ -->
+<div class="doc-section" id="cap3">
+  <div class="section-header" onclick="toggleSection('body3',this)">
+    <div class="sec-num">3</div>
+    <div class="sec-title">Arquitectura de Datos y Topología de Conexiones E2E</div>
+    <span class="sec-badge badge-blue">Arquitectura</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body3">
+    <h3>3.1 Patrón arquitectónico por capas</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Capa</th><th>Alias</th><th>Base de datos</th><th>Objetos</th><th>Responsabilidad</th></tr></thead>
+      <tbody>
+        <tr><td>Fuentes OLTP / Logística</td><td>SRC</td><td>SIG_COLOMBIA_DW, SIG_COL_LOGISTICA_DW, MECE_LOGISTICO</td><td>Guías, movimientos, seguimiento de envío, documentos</td><td>Datos operacionales de distribución</td></tr>
+        <tr><td>Temporales</td><td>TMP</td><td>SIG_LOGISTICA_DM</td><td><code>TMP.GM_DISTRIBUCION</code>, <code>TMP.GM_DISTRIBUCION_SZU</code>, <code>TMP.GM_DISTRIBUCION_RPO</code></td><td>Consolidación previa a la FAC</td></tr>
+        <tr><td>Dimensiones</td><td>DIM</td><td>SIG_LOGISTICA_DM</td><td><code>DIM.GM_HORA_DISTRIBUCION</code>, <code>DIM GM CPL DISTRIBUCION</code>, <code>DIM.GM_RECOLECCION_*</code></td><td>Dimensiones conformadas con centinelas</td></tr>
+        <tr><td>Hechos</td><td>FAC</td><td>SIG_LOGISTICA_DM</td><td><code>FAC.GM_DISTRIBUCION</code>, <code>FAC.GM_RECOLECCION</code></td><td>Una fila por gestión de distribución / recolección</td></tr>
+        <tr><td>Cubo OLAP</td><td>OLAP</td><td>SSAS_GM_GREEN_MOBILE</td><td>Cubo <code>GREEN_MOBILE</code>, perspectiva de Gestión en Línea</td><td>Modelo semántico multidimensional</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>3.2 Matriz de Connection Managers</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Connection Manager</th><th>Tipo</th><th>Servidor / Base</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td><code>PSIG_COLOMBIA_DW</code></td><td>OLE DB</td><td>SIG_COLOMBIA_DW</td><td>Guías y seguimiento de envío de distribución.</td></tr>
+        <tr><td><code>PSIG_COL_LOGISTICA_DW</code></td><td>OLE DB</td><td>SIG_COL_LOGISTICA_DW</td><td>Movimientos logísticos y zonas urbanas.</td></tr>
+        <tr><td><code>SIG_LOGISTICA_DM</code></td><td>OLE DB</td><td>SIG_LOGISTICA_DM</td><td>Destino de TMP, DIM y FAC del data mart.</td></tr>
+        <tr><td><code>MECE_LOGISTICO</code></td><td>OLE DB</td><td>MECE Logistico</td><td>Catálogos de recolección y rechazos.</td></tr>
+        <tr><td><code>SSISDB</code></td><td>OLE DB</td><td>Catálogo SSISDB</td><td>Ejecución de paquetes hijos vía <code>catalog.create_execution</code>.</td></tr>
+        <tr><td><code>BOPVSVWSSDGN02_DBDG001.tmp_borrar_local</code></td><td>OLE DB</td><td>Servidor de staging local</td><td>Tabla temporal <code>DOCUMENTOS_BI_GM_AJCUBO_CUBOS</code> de repoblamiento.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>3.3 Diagrama de flujo vertical E2E</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg3')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 3.1 — Green Mobile: fuentes → TMP → DIM/FAC → Cubo</div>
+      <div class="mermaid" id="dg3">
+flowchart TD
+  A(["🏭 FUENTES<br/>SIG_COLOMBIA_DW · SIG_COL_LOGISTICA_DW<br/>MECE_LOGISTICO"]) --> B["📥 EXTRACCION DISTRIBUCION GM<br/>guías · documentos · seguimiento<br/>DIM GM CPL DISTRIBUCION"]
+  B --> C["🅿️ TMP<br/>GM_DISTRIBUCION · _SZU · _RPO"]
+  C --> D["⚙️ TRANSFORMACION DISTRIBUCION GM<br/>bucle por día · días posteriores"]
+  D --> E{"¿Dimensión resuelta?"}
+  E -->|"Sí"| F["📐 DIM<br/>GM_HORA_DISTRIBUCION<br/>GM CPL DISTRIBUCION<br/>GM_ZONA_URBANA"]
+  E -->|"No"| G["⚠️ Miembros centinela<br/>-888 · NO REPORTADO"]
+  F --> H["📊 FAC.GM_DISTRIBUCION"]
+  G --> H
+  H --> I["🔄 CARGA + PROCESO SSAS<br/>ProcessFull FAC · ProcessUpdate DIM"]
+  I --> J["🧊 CUBO GREEN_MOBILE<br/>perspectiva OPORTUNIDAD REGISTRO<br/>GESTION EN LINEA"]
+  J --> K(["📈 POWER BI · TORRE DE CONTROL<br/>Efectividad 0 a 24 · CPL"])
+  style A fill:#0072b1,color:#fff
+  style K fill:#10b981,color:#fff
+  style G fill:#f59e0b,color:#032b3b
+      </div>
+    </div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar captura de los Connection Managers del proyecto GM_GREEN_MOBILE_HU_AJCUBO-CUBOS-PBI02]</span></div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 4 ══════════ -->
+<div class="doc-section" id="cap4">
+  <div class="section-header" onclick="toggleSection('body4',this)">
+    <div class="sec-num">4</div>
+    <div class="sec-title">Diccionario de Datos y Tipología de Tablas</div>
+    <span class="sec-badge badge-blue">Metadatos</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body4">
+    <div class="accordion-group">
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a4a')">🅿️ 4.1 Esquema TMP — consolidación de distribución <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a4a">
+          <h3>TMP.GM_DISTRIBUCION</h3>
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Columna</th><th>Tipo</th><th>Descripción</th></tr></thead>
+            <tbody>
+              <tr><td><code>G_TIME_ID</code></td><td>INT</td><td>Clave de tiempo de la distribución.</td></tr>
+              <tr><td><code>G_ID_GEOGRAFIA</code></td><td>VARCHAR(37)</td><td>Clave compuesta ciudad-tipo zona-zona urbana.</td></tr>
+              <tr><td><code>G_ID_TIPO_GUIA</code></td><td>INT</td><td>Tipo de guía / manifiesto.</td></tr>
+              <tr><td><code>G_ID_CIUDAD_ORIGEN</code></td><td>INT</td><td>Ciudad de origen.</td></tr>
+              <tr><td><code>G_ID_CIUDAD_DESTINO</code></td><td>INT</td><td>Ciudad de destino.</td></tr>
+              <tr><td><code>G_ID_TIEMPO_ENTREGA</code></td><td>INT</td><td>Tiempo de entrega.</td></tr>
+              <tr><td><code>G_ID_PRODUCTO</code> / <code>G_ID_SUBPRODUCTO</code></td><td>INT</td><td>Portafolio.</td></tr>
+              <tr><td><code>S_ID_PROCESO_SZU</code> / <code>S_ID_CONCEPTO_SZU</code></td><td>INT</td><td>Proceso y concepto de salida a zona urbana.</td></tr>
+              <tr><td><code>S_ID_PROCESO_REP</code> / <code>S_ID_CONCEPTO_REP</code></td><td>INT</td><td>Proceso y concepto de reporte.</td></tr>
+              <tr><td><code>S_ID_HORA_REP</code></td><td>INT</td><td>Hora de reporte que alimenta <code>GM HORA DISTRIBUCION</code>.</td></tr>
+            </tbody>
+          </table></div>
+          <h3>TMP.GM_DISTRIBUCION_SZU / TMP.GM_DISTRIBUCION_RPO</h3>
+          <p>Tablas de trabajo para la salida a zona urbana (SZU) y el reporte por operación (RPO). Se truncan al inicio de cada ejecución del paquete de transformación.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a4b')">📐 4.2 Dimensiones <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a4b">
+          <h3>GM CPL DISTRIBUCION <span class="sec-badge badge-new">NUEVA</span></h3>
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Atributo</th><th>Tipo</th><th>Descripción</th></tr></thead>
+            <tbody>
+              <tr><td><code>CPL</code></td><td>VARCHAR</td><td>Centro de Procesamiento Logístico.</td></tr>
+              <tr><td><code>ID CIUDAD ANEXA</code></td><td>INT</td><td>Ciudad asociada al CPL.</td></tr>
+              <tr><td><code>NOMBRE CIUDAD</code></td><td>VARCHAR</td><td>Nombre de la ciudad anexa.</td></tr>
+              <tr><td><code>NOMBRE REGIONAL</code></td><td>VARCHAR</td><td>Regional a la que pertenece el CPL.</td></tr>
+            </tbody>
+          </table></div>
+          <h3>GM_HORA_DISTRIBUCION</h3>
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Atributo</th><th>Descripción</th><th>Uso en el evolutivo</th></tr></thead>
+            <tbody>
+              <tr><td><code>HORA REPORTE</code></td><td>Hora (0–23) del reporte de gestión.</td><td>Base de las ventanas horarias.</td></tr>
+              <tr><td><code>GRUPO GESTION EN LINEA</code></td><td>Agrupación horaria para gestión en línea (1–12).</td><td><strong>Efectividad 0 a 24</strong> suma los grupos 1 a 12.</td></tr>
+              <tr><td><code>GRUPO EFECTIVIDAD</code></td><td>Agrupación usada por los indicadores de recolección.</td><td>No se modifica.</td></tr>
+              <tr><td><code>OPERATIVO</code></td><td>Marca operativa de la hora.</td><td>Segmentación adicional.</td></tr>
+            </tbody>
+          </table></div>
+          <h3>Otras dimensiones de la perspectiva</h3>
+          <p><code>GM_ZONA_URBANA</code>, <code>TIEMPO</code>, <code>TIEMPO_ENTREGA_ENVIO</code>, <code>TIPO GUIA</code>, <code>UEN_PROD_SUBP</code>, <code>GEOGRAFIA_ORIGEN_GUIA</code>, <code>GEOGRAFIA_DESTINO_GUIA</code>, <code>ID PROCESO CONCEPTO SZU</code>, <code>ID PROCESO CONCEPTO REP</code>.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a4c')">📊 4.3 Tablas de hechos <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a4c">
+          <h3>FAC.GM_DISTRIBUCION <span class="sec-badge badge-mod">MODIFICADA</span></h3>
+          <p><strong>Granularidad:</strong> una fila por gestión de distribución consolidada por guía, día y dimensiones de proceso.</p>
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Columna</th><th>Rol</th><th>Descripción</th></tr></thead>
+            <tbody>
+              <tr><td><code>G_TIME_ID</code></td><td>FK</td><td>Día de la gestión.</td></tr>
+              <tr><td><code>G_ID_GEOGRAFIA</code></td><td>FK</td><td>Zona urbana / ciudad.</td></tr>
+              <tr><td><code>G_ID_TIPO_GUIA</code></td><td>FK</td><td>Tipo de manifiesto (Carga, Documentos, Valores y otros).</td></tr>
+              <tr><td><code>G_ID_CIUDAD_ORIGEN</code> / <code>G_ID_CIUDAD_DESTINO</code></td><td>FK</td><td>Ciudades del envío.</td></tr>
+              <tr><td><code>G_ID_TIEMPO_ENTREGA</code></td><td>FK</td><td>Tiempo de entrega.</td></tr>
+              <tr><td><code>G_ID_PRODUCTO</code> / <code>G_ID_SUBPRODUCTO</code></td><td>FK</td><td>Portafolio.</td></tr>
+              <tr><td><code>S_ID_PROCESO_SZU</code> / <code>S_ID_CONCEPTO_SZU</code></td><td>FK</td><td>Salida a zona urbana (referencia de días posteriores).</td></tr>
+              <tr><td><code>S_ID_PROCESO_REP</code> / <code>S_ID_CONCEPTO_REP</code> / <code>S_ID_HORA_REP</code></td><td>FK</td><td>Reporte de gestión y hora.</td></tr>
+            </tbody>
+          </table></div>
+          <h3>FAC.GM_RECOLECCION</h3>
+          <p>Hecho de recolección (fuera del alcance funcional del evolutivo, pero comparte dimensiones del modelo). Se conserva sin cambios para no afectar los indicadores de eficiencia.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-trigger" onclick="toggleAccordion('a4d')">🔧 4.4 Tablas de control y temporales <span class="accordion-arrow">▶</span></div>
+        <div class="accordion-body" id="a4d">
+          <div class="tbl-wrap"><table class="data-table">
+            <thead><tr><th>Tabla</th><th>Ámbito</th><th>Vida útil</th><th>Propósito</th></tr></thead>
+            <tbody>
+              <tr><td><code>DIM.GM_HORA_DISTRIBUCION</code></td><td>DIM</td><td>Persistente</td><td>Catálogo de horas, grupos de gestión en línea y efectividad.</td></tr>
+              <tr><td><code>TMP.GM_DISTRIBUCION</code></td><td>TMP</td><td>Truncada por ejecución</td><td>Consolidado previo a la FAC.</td></tr>
+              <tr><td><code>TMP.GM_DISTRIBUCION_SZU</code></td><td>TMP</td><td>Truncada por ejecución</td><td>Eventos de salida a zona urbana.</td></tr>
+              <tr><td><code>TMP.GM_DISTRIBUCION_RPO</code></td><td>TMP</td><td>Truncada por ejecución</td><td>Reporte por operación.</td></tr>
+              <tr><td><code>etl.EjecucionLog</code></td><td>Control</td><td>Persistente</td><td>Bitácora de ejecuciones.</td></tr>
+              <tr><td><code>etl.ControlCarga</code></td><td>Control</td><td>Persistente</td><td>Watermark de carga.</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 5 ══════════ -->
+<div class="doc-section" id="cap5">
+  <div class="section-header" onclick="toggleSection('body5',this)">
+    <div class="sec-num">5</div>
+    <div class="sec-title">Análisis Técnico Avanzado de Paquetes SSIS</div>
+    <span class="sec-badge badge-orange">ETL</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body5">
+    <h3>5.1 Inventario real de paquetes</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Paquete (.dtsx)</th><th>Propósito</th><th>Rol en el evolutivo</th></tr></thead>
+      <tbody>
+        <tr><td><code>EXTRACCION DISTRIBUCION GM.dtsx</code></td><td>Extrae guías, documentos y seguimiento; construye la dimensión CPL.</td><td><strong>Impactado</strong>: <code>StrCiudadesGMD</code> sin restricción + DIM CPL.</td></tr>
+        <tr><td><code>TRANSFORMACION DISTRIBUCION GM.dtsx</code></td><td>Bucle por día de distribución, SZU/RPO y consolidación.</td><td><strong>Impactado</strong>: días posteriores y todas las ciudades.</td></tr>
+        <tr><td><code>CARGA DISTRIBUCION GM.dtsx</code></td><td>Limpia y carga <code>FAC.GM_DISTRIBUCION</code>.</td><td><strong>Impactado</strong>: publicación del hecho ampliado.</td></tr>
+        <tr><td><code>SISMILENIO_EXTRAER_GM_DISTRIBUCION.dtsx</code></td><td>Extracción base de distribución y ejecución encadenada de la transformación.</td><td>Soporte del pipeline.</td></tr>
+        <tr><td><code>SISMILENIO_EXTRAER_GM_HORA_DISTRIBUCION.dtsx</code></td><td>Carga del catálogo de horas y grupos.</td><td>Soporte de la ventana 0 a 24.</td></tr>
+        <tr><td><code>000REPOBLAR_A_DESARROLLO.dtsx</code></td><td>Repoblamiento de hechos para 2026 desde <code>DOCUMENTOS_BI_GM_AJCUBO_CUBOS</code>.</td><td>Alcance histórico.</td></tr>
+        <tr><td><code>EXTRACCION RECOLECCION GM.dtsx</code></td><td>Extracción de solicitudes de recolección.</td><td>Fuera de alcance (se preserva).</td></tr>
+        <tr><td><code>TRANSFORMACION RECOLECCION GM.dtsx</code></td><td>Transformación de recolección y rechazos.</td><td>Fuera de alcance (se preserva).</td></tr>
+        <tr><td><code>CARGA RECOLECCION GM.dtsx</code></td><td>Carga de <code>FAC.GM_RECOLECCION</code>.</td><td>Fuera de alcance (se preserva).</td></tr>
+        <tr><td><code>SISMILENIO_EXTRAER_GM_RECOLECCION.dtsx</code></td><td>Orquestación de recolección.</td><td>Fuera de alcance.</td></tr>
+        <tr><td><code>SISMILENIO_EXTRAER_GM_REC_RECHAZOS.dtsx</code></td><td>Carga de motivos de rechazo.</td><td>Fuera de alcance.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>5.2 Flujo de control del pipeline de distribución</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg5a')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 5.1 — Extracción → Transformación → Carga de distribución</div>
+      <div class="mermaid" id="dg5a">
+flowchart TD
+  S(["▶ START"]) --> T["TRUNCAR TEMPORALES<br/>TMP CPL GM DISTRIBUCION"]
+  T --> D["CONTRUCCION DIM CPL GM DISTRIBUCION<br/>CARGAR INCREMENTAL DIM GM CPL"]
+  D --> X["EXTRACCION DISTRIBUCION GM<br/>GUIAS_DG · GUIAS_HLOG · GUIAS_LOG<br/>DISTRIBUCION SEGUIMIENTO ENVIO"]
+  X --> B["TRANSFORMACION DISTRIBUCION GM<br/>BUCLE DIA DE DISTRIBUCION"]
+  B --> B1["EXTRAER SZU<br/>EXTRAER RPO"]
+  B1 --> B2["ELIMINAR RPO DE SZU<br/>INSERTAR DISTRIBUCION"]
+  B2 --> B3["ACTUALIZAR REPORTADAS"]
+  B3 --> C["CARGA DISTRIBUCION GM<br/>TRUNCATE FAC.GM_DISTRIBUCION"]
+  C --> C2["EXTRAER GM_DISTRIBUCION<br/>→ FAC.GM_DISTRIBUCION"]
+  C2 --> P["PROCESO SSAS<br/>FAC + DIM CPL"]
+  P --> E(["✅ END SUCCESS"])
+  X -->|"Failure"| ER["📛 OnError<br/>log + alerta"]
+  B -->|"Failure"| ER
+  C -->|"Failure"| ER
+  ER --> F(["❌ END FAIL"])
+  style S fill:#10b981,color:#fff
+  style E fill:#10b981,color:#fff
+  style ER fill:#ef4444,color:#fff
+  style D fill:#00b0f0,color:#032b3b
+      </div>
+    </div>
+
+    <h3>5.3 El cambio de cobertura geográfica</h3>
+    <p>El parámetro de ciudades de distribución es la evidencia directa del ajuste. Su descripción y valor quedaron redefinidos para eliminar el filtro restrictivo:</p>
+    <div class="code-block"><span class="cm">-- Project.params (extracto real)</span>
+&lt;Parameter Name="StrCiudadesGMR"&gt;
+  Description: Ciudad Zona Urbana Recolección
+  Value:       <span class="str">SELECT ID_CIUDAD FROM PARAMETROS.DBO.CIUDADES</span>
+&lt;/Parameter&gt;
+
+&lt;Parameter Name="StrCiudadesGMD"&gt;
+  Description: <span class="str">AHORA APLICAN TODAS Ciudad Zona Urbana Distribución</span>
+  Value:       <span class="str">5,10,15,20,40,42,47,50,60,85,90,207,233,288,664</span>
+&lt;/Parameter&gt;</div>
+    <div class="info-box warning"><strong>Lectura técnica:</strong> el listado mantiene los códigos de ciudad configurados para distribución y su descripción oficializa que <em>aplican todas</em>. No debe introducirse un <code>TOP 10</code> ni un filtro excluyente en la consulta de extracción.</div>
+
+    <h3>5.4 Miembro calculado y ventanas</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg5b')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 5.2 — Data flow lógico de la efectividad por ventana</div>
+      <div class="mermaid" id="dg5b">
+flowchart TD
+  A(["Gestión de distribución"]) --> B["DIM.GM_HORA_DISTRIBUCION<br/>HORA REPORTE 0–23"]
+  B --> C{"GRUPO GESTION EN LINEA"}
+  C -->|"1 … 12"| D["Nueva ventana 00:00:01–23:59:59"]
+  C -->|"6–14"| E["Efectividad 6 a 2"]
+  C -->|"6–15"| F["Efectividad 6 am a 3 pm"]
+  C -->|"6–18"| G["Efectividad 6 a 6"]
+  D --> H["CREATE MEMBER<br/>Efectividad 0 a 24"]
+  E --> I["Ventanas vigentes sin cambio"]
+  F --> I
+  G --> I
+  H --> J(["Perspectiva OPORTUNIDAD<br/>REGISTRO GESTION EN LINEA"])
+  I --> J
+  style D fill:#00b0f0,color:#032b3b
+  style E fill:#94a3b8,color:#032b3b
+  style F fill:#94a3b8,color:#032b3b
+  style G fill:#94a3b8,color:#032b3b
+  style J fill:#10b981,color:#fff
+      </div>
+    </div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar captura del flujo de control de CARGA DISTRIBUCION GM y de EXTRACCION DISTRIBUCION GM]</span></div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar captura del Data Flow de INSERTAR DISTRIBUCION y del bucle BUCLE DIA DE DISTRIBUCION]</span></div>
+
+    <h3>5.5 Precedence constraints y manejo de errores</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Origen</th><th>Destino</th><th>Tipo</th><th>Criterio</th></tr></thead>
+      <tbody>
+        <tr><td>TRUNCAR TEMPORALES</td><td>CONTRUCCION DIM CPL</td><td>Success</td><td>El área de trabajo debe quedar limpia.</td></tr>
+        <tr><td>EXTRAER SZU / RPO</td><td>ELIMINAR RPO DE SZU</td><td>Success</td><td>Ambas extracciones deben completar.</td></tr>
+        <tr><td>INSERTAR DISTRIBUCION</td><td>ACTUALIZAR REPORTADAS</td><td>Success</td><td>Consistencia del reporte.</td></tr>
+        <tr><td>Carga de FAC</td><td>Proceso SSAS</td><td>Success</td><td>Sólo se procesa el cubo con carga exitosa.</td></tr>
+        <tr><td>Cualquier tarea</td><td>OnError</td><td>Failure</td><td>Registra error y detiene la cadena.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 6 ══════════ -->
+<div class="doc-section" id="cap6">
+  <div class="section-header" onclick="toggleSection('body6',this)">
+    <div class="sec-num">6</div>
+    <div class="sec-title">Modelo de Despliegue Moderno: SSIS Catalog (ISPAC) y Variables de Entorno</div>
+    <span class="sec-badge badge-blue">Despliegue</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body6">
+    <h3>6.1 Estructura del proyecto compilado</h3>
+    <div class="code-block">SSISDB\
+└── DATA MART LOGISTICA\
+    └── MODELO GREEN MOBILE\                 <span class="cm"># Proyecto (.ispac)</span>
+        ├── EXTRACCION DISTRIBUCION GM.dtsx
+        ├── TRANSFORMACION DISTRIBUCION GM.dtsx
+        ├── CARGA DISTRIBUCION GM.dtsx
+        ├── SISMILENIO_EXTRAER_GM_DISTRIBUCION.dtsx
+        ├── SISMILENIO_EXTRAER_GM_HORA_DISTRIBUCION.dtsx
+        ├── 000REPOBLAR_A_DESARROLLO.dtsx
+        ├── (cadena de recolección)
+        ├── Environments\
+        │   ├── ENV_DEVELOPMENT
+        │   ├── ENV_QA
+        │   └── ENV_PRODUCTION
+        └── Project Parameters\
+            ├── StrCiudadesGMR   (String)
+            ├── StrCiudadesGMD   (String)
+            ├── datFechaInicio   (DateTime)
+            ├── datFechaFin      (DateTime)
+            └── DiaIni           (Int32)</div>
+
+    <h3>6.2 Parámetros reales del proyecto</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Parámetro</th><th>Tipo</th><th>Valor por defecto</th><th>Propósito</th></tr></thead>
+      <tbody>
+        <tr><td><code>StrCiudadesGMR</code></td><td>String</td><td><code>SELECT ID_CIUDAD FROM PARAMETROS.DBO.CIUDADES</code></td><td>Ciudades de zona urbana para recolección.</td></tr>
+        <tr><td><code>StrCiudadesGMD</code></td><td>String</td><td><code>5,10,15,20,40,42,47,50,60,85,90,207,233,288,664</code></td><td>Ciudades de distribución; descripción “AHORA APLICAN TODAS”.</td></tr>
+        <tr><td><code>datFechaInicio</code></td><td>DateTime</td><td>1900-01-01</td><td>Fecha inicial de la ventana de extracción.</td></tr>
+        <tr><td><code>datFechaFin</code></td><td>DateTime</td><td>1900-01-01</td><td>Fecha final de la ventana de extracción.</td></tr>
+        <tr><td><code>DiaIni</code></td><td>Int32</td><td>15</td><td>Día de inicio del bucle de distribución.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>6.3 Matriz de Environments</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Variable</th><th>Development</th><th>QA</th><th>Production</th></tr></thead>
+      <tbody>
+        <tr><td><code>StrCiudadesGMD</code></td><td>Listado completo</td><td>Listado completo</td><td>Listado completo</td></tr>
+        <tr><td><code>datFechaInicio</code></td><td>1900-01-01</td><td>2026-01-01</td><td>Parámetro del job</td></tr>
+        <tr><td><code>datFechaFin</code></td><td>1900-01-01</td><td>2026-11-19</td><td>Parámetro del job</td></tr>
+        <tr><td><code>DiaIni</code></td><td>15</td><td>15</td><td>15</td></tr>
+      </tbody>
+    </table></div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar captura de SSISDB → MODELO GREEN MOBILE → Environments y referencias de parámetros]</span></div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 7 ══════════ -->
+<div class="doc-section" id="cap7">
+  <div class="section-header" onclick="toggleSection('body7',this)">
+    <div class="sec-num">7</div>
+    <div class="sec-title">Auditoría, Logging y Control de Filas Procesadas</div>
+    <span class="sec-badge badge-blue">Auditoría</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body7">
+    <h3>7.1 Mecanismos de auditoría</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Mecanismo</th><th>Implementación</th><th>Propósito</th></tr></thead>
+      <tbody>
+        <tr><td>Ejecución catalogada</td><td><code>SSISDB.catalog.create_execution</code> / <code>start_execution</code></td><td>Los paquetes hijos se ejecutan y quedan registrados en SSISDB con su <em>execution_id</em>.</td></tr>
+        <tr><td>SSIS Logging</td><td>Provider SQL Server</td><td>Eventos OnError, OnWarning, OnInformation.</td></tr>
+        <tr><td>Row Count</td><td>Transformación Row Count en los Data Flow</td><td>Filas extraídas y cargadas por etapa.</td></tr>
+        <tr><td>Event Handlers</td><td><code>OnError</code>, <code>OnWarning</code>, <code>OnPostExecute</code></td><td>Persistencia de estado por paquete.</td></tr>
+        <tr><td>Tablas de control</td><td><code>etl.EjecucionLog</code>, <code>etl.ControlCarga</code></td><td>Bitácora centralizada y watermark.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>7.2 Estructura de tablas de control</h3>
+    <div class="code-block"><span class="kw">CREATE TABLE</span> etl.EjecucionLog (
+  ID_LOG          BIGINT IDENTITY(1,1) PRIMARY KEY,
+  NOMBRE_PAQUETE  VARCHAR(200) NOT NULL,
+  FEC_INICIO      DATETIME     NOT NULL,
+  FEC_FIN         DATETIME     NULL,
+  ESTADO          VARCHAR(20)  NOT NULL,   <span class="cm">-- INICIADO | EXITOSO | ERROR</span>
+  FILAS_EXTRAIDAS INT          NULL,
+  FILAS_CARGADAS  INT          NULL,
+  MENSAJE_ERROR   VARCHAR(MAX) NULL
+);
+
+<span class="kw">CREATE TABLE</span> etl.ControlCarga (
+  ID_CONTROL     INT IDENTITY(1,1) PRIMARY KEY,
+  NOMBRE_PROCESO VARCHAR(200) NOT NULL,
+  ULT_EJECUCION  DATETIME     NOT NULL,
+  ULT_FECHA_DATO DATE         NULL,
+  ESTADO         VARCHAR(20)  NOT NULL
+);</div>
+
+    <h3>7.3 Procesamiento del cubo</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg7')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 7.1 — Secuencia de actualización del cubo GREEN_MOBILE</div>
+      <div class="mermaid" id="dg7">
+flowchart TD
+  A(["▶ Inicio del proceso SSAS"]) --> B["ProcessUpdate<br/>GM CPL DISTRIBUCION 🆕<br/>GM_HORA_DISTRIBUCION"]
+  B --> C{"¿Errores?"}
+  C -->|"Sí"| X(["❌ Log + abortar"])
+  C -->|"No"| D["ProcessFull<br/>Grupo OPORTUNIDAD REGISTRO<br/>GESTION EN LINEA"]
+  D --> E["Recalcular miembros calculados<br/>Efectividad 0 a 24"]
+  E --> F["Validación MDX<br/>suma de grupos 1–12"]
+  F --> G{"¿Coincide con<br/>Cantidad Guias?"}
+  G -->|"Sí"| H(["✅ Cubo procesado"])
+  G -->|"No"| W(["⚠️ Revisar dimensión horaria"])
+  style A fill:#10b981,color:#fff
+  style H fill:#10b981,color:#fff
+  style X fill:#ef4444,color:#fff
+  style W fill:#f59e0b,color:#032b3b
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 8 ══════════ -->
+<div class="doc-section" id="cap8">
+  <div class="section-header" onclick="toggleSection('body8',this)">
+    <div class="sec-num">8</div>
+    <div class="sec-title">Lógica de Negocio y Reglas de Procesamiento</div>
+    <span class="sec-badge badge-orange">Negocio</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body8">
+    <h3>8.1 Reglas de ventana horaria</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Ventana</th><th>Miembro calculado</th><th>Estado</th><th>Regla</th></tr></thead>
+      <tbody>
+        <tr><td>06:00 – 14:00</td><td><code>Efectividad 6 a 2</code></td><td>Vigente</td><td>Suma de horas 6 a 13 sobre <code>Cantidad Guias</code>.</td></tr>
+        <tr><td>06:00 – 15:00</td><td><code>Efectividad 6 am a 3 pm</code></td><td>Vigente</td><td>Suma de horas 6 a 14 sobre <code>Cantidad Guias</code>.</td></tr>
+        <tr><td>06:00 – 18:00</td><td><code>Efectividad 6 a 6</code></td><td>Vigente</td><td>Suma de horas 6 a 17 sobre <code>Cantidad Guias</code>.</td></tr>
+        <tr><td>00:00:01 – 23:59:59</td><td><code>Efectividad 0 a 24</code></td><td><span class="sec-badge badge-new">NUEVA</span></td><td>Suma de <code>GRUPO GESTION EN LINEA</code> 1 a 12 sobre <code>Cantidad Guias</code>.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>8.2 Fórmula MDX real del nuevo miembro</h3>
+    <div class="code-block"><span class="kw">CREATE MEMBER</span> CURRENTCUBE.[Measures].[Efectividad 0 a 24]
+<span class="kw">AS</span> (
+  ([GM HORA DISTRIBUCION].[GRUPO GESTION EN LINEA].&amp;[1],[Measures].[Cantidad Guias])
++ ([GM HORA DISTRIBUCION].[GRUPO GESTION EN LINEA].&amp;[2],[Measures].[Cantidad Guias])
++ ... <span class="cm">-- grupos 3 a 11</span>
++ ([GM HORA DISTRIBUCION].[GRUPO GESTION EN LINEA].&amp;[12],[Measures].[Cantidad Guias])
+)
+/ ([Measures].[Cantidad Guias]),
+FORMAT_STRING = <span class="str">"Percent"</span>,
+VISIBLE = 1,
+ASSOCIATED_MEASURE_GROUP = <span class="str">'OPORTUNIDAD REGISTRO GESTION EN LINEA'</span>;</div>
+
+    <h3>8.3 Flujo vertical de decisión del evolutivo</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg8')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 8.1 — Ventanas, ciudades, CPL y días posteriores</div>
+      <div class="mermaid" id="dg8">
+flowchart TD
+  A(["Gestión en línea de distribución"]) --> B{"¿Hora de reporte válida?"}
+  B -->|"No"| N["🔴 No disponible<br/>-888 · NO REPORTADO"]
+  B -->|"Sí"| C{"GRUPO GESTION EN LINEA"}
+  C -->|"1–12"| D["Ventana 0 a 24"]
+  C -->|"6–13"| E["Ventana 6 a 14"]
+  C -->|"6–14"| F["Ventana 6 a 15"]
+  C -->|"6–17"| G["Ventana 6 a 18"]
+  D --> H{"¿Ciudad configurada<br/>para distribución?"}
+  E --> H
+  F --> H
+  G --> H
+  H -->|"Sí"| I["Asignar CPL<br/>GM CPL DISTRIBUCION"]
+  H -->|"No"| N
+  I --> J{"¿Día de la gestión =<br/>día de salida a zona urbana?"}
+  J -->|"Sí"| K["Día 0 — indicador del día"]
+  J -->|"No"| L["Día posterior —<br/>segregado por clave de tiempo"]
+  K --> M(["Perspectiva de Gestión en Línea"])
+  L --> M
+  N --> M
+  style D fill:#00b0f0,color:#032b3b
+  style N fill:#ef4444,color:#fff
+  style M fill:#10b981,color:#fff
+      </div>
+    </div>
+
+    <h3>8.4 Reglas de homologación y días posteriores</h3>
+    <ul>
+      <li><strong>Ciudades:</strong> se procesan todas las ciudades configuradas para distribución por CPL; no se aplica <code>TOP 10</code> ni listas excluyentes.</li>
+      <li><strong>Manifiestos:</strong> se incluyen Carga, Documentos, Valores y demás tipos configurados; el tipo se conserva vía <code>G_ID_TIPO_GUIA</code>.</li>
+      <li><strong>Días posteriores:</strong> la gestión se ancla a la fecha de salida a zona urbana (<code>S_ID_PROCESO_SZU</code> / <code>S_ID_CONCEPTO_SZU</code>). Las gestiones de días siguientes conservan su propia clave de tiempo, de modo que no distorsionan la medición del día de salida.</li>
+      <li><strong>No disponible:</strong> los registros sin datos dimensionales apuntan a miembros centinela (<code>-888</code>, <code>NO REPORTADO</code>) en lugar de descartarse.</li>
+    </ul>
+    <div class="code-block"><span class="cm">-- Verificación de uso real de dimensiones (CA07): ¿hay FKs centinela?</span>
+<span class="kw">SELECT</span>
+  SUM(<span class="kw">CASE WHEN</span> G_ID_GEOGRAFIA <span class="kw">LIKE</span> <span class="str">'-888%'</span> <span class="kw">THEN</span> 1 <span class="kw">ELSE</span> 0 <span class="kw">END</span>) <span class="kw">AS</span> SIN_GEOGRAFIA,
+  SUM(<span class="kw">CASE WHEN</span> S_ID_HORA_REP = -888 <span class="kw">THEN</span> 1 <span class="kw">ELSE</span> 0 <span class="kw">END</span>) <span class="kw">AS</span> SIN_HORA,
+  <span class="fn">COUNT</span>(*) <span class="kw">AS</span> TOTAL
+<span class="kw">FROM</span> FAC.GM_DISTRIBUCION;</div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 9 ══════════ -->
+<div class="doc-section" id="cap9">
+  <div class="section-header" onclick="toggleSection('body9',this)">
+    <div class="sec-num">9</div>
+    <div class="sec-title">Foco Especial: Evolutivo, Trazabilidad y Criterios de Aceptación</div>
+    <span class="sec-badge badge-green">Trazabilidad</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body9">
+    <h3>9.1 Trazabilidad completa del evolutivo</h3>
+    <div class="traza-step"><div class="traza-icon">1️⃣</div><div class="traza-info"><strong>Origen — Logística de distribución</strong><span><code>SIG_COLOMBIA_DW</code>: guías, seguimiento de envío, documentos y zonas urbanas.</span></div></div>
+    <div class="traza-step"><div class="traza-icon">2️⃣</div><div class="traza-info"><strong>Extracción — EXTRACCION DISTRIBUCION GM</strong><span>Construcción de <code>DIM GM CPL DISTRIBUCION</code> y extracción con <code>StrCiudadesGMD</code> sin restricción.</span></div></div>
+    <div class="traza-step"><div class="traza-icon">3️⃣</div><div class="traza-info"><strong>Transformación — TRANSFORMACION DISTRIBUCION GM</strong><span>Bucle por día, SZU/RPO, consolidación en <code>TMP.GM_DISTRIBUCION</code> y segregación de días posteriores.</span></div></div>
+    <div class="traza-step"><div class="traza-icon">4️⃣</div><div class="traza-info"><strong>Carga — CARGA DISTRIBUCION GM</strong><span><code>FAC.GM_DISTRIBUCION</code> con todas las ciudades y tipos de manifiesto.</span></div></div>
+    <div class="traza-step"><div class="traza-icon">5️⃣</div><div class="traza-info"><strong>SSAS — DSV y dimensiones</strong><span>CPL incorporado a la perspectiva; catálogo horario con grupos de gestión en línea.</span></div></div>
+    <div class="traza-step"><div class="traza-icon">6️⃣</div><div class="traza-info"><strong>Cubo — perspectiva de Gestión en Línea</strong><span>Miembro calculado <em>Efectividad 0 a 24</em> visible y validado; indicadores vigentes intactos.</span></div></div>
+
+    <h3>9.2 Diagrama vertical del cambio evolutivo</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg9')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 9.1 — Trazabilidad E2E del PBI-02</div>
+      <div class="mermaid" id="dg9">
+flowchart TD
+  A(["📋 PBI-02 340289<br/>Efectividad día completo + CPL + todas las ciudades"]) --> B["🏭 SIG_COLOMBIA_DW<br/>guías · seguimiento · zonas urbanas"]
+  B --> C["⚙️ EXTRACCION DISTRIBUCION GM<br/>DIM CPL · StrCiudadesGMD TODAS"]
+  C --> D["🔁 TRANSFORMACION DISTRIBUCION GM<br/>bucle diario · SZU/RPO"]
+  D --> E["🗄️ TMP.GM_DISTRIBUCION"]
+  E --> F["📊 FAC.GM_DISTRIBUCION"]
+  F --> G["📐 DIM.GM_HORA_DISTRIBUCION<br/>GRUPO GESTION EN LINEA"]
+  F --> H["🏢 DIM GM CPL DISTRIBUCION"]
+  G --> I["🧊 GREEN_MOBILE · perspectiva<br/>Miembro MDX Efectividad 0 a 24"]
+  H --> I
+  I --> J(["✅ Análisis 0–24 por CPL y ciudad"])
+  style A fill:#0f172a,color:#94a3b8
+  style J fill:#10b981,color:#fff
+  style I fill:#00b0f0,color:#032b3b
+      </div>
+    </div>
+
+    <h3>9.3 Matriz de criterios de aceptación</h3>
+    <div class="ca-grid">
+      <div class="ca-card"><div class="ca-id">CA01</div><div class="ca-title">Medición de día completo</div><div class="ca-desc">La medida <code>Efectividad 0 a 24</code> cubre 00:00:01–23:59:59 mediante los grupos 1 a 12 y es visible en la perspectiva.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA03</div><div class="ca-title">Conservación de ventanas actuales</div><div class="ca-desc">Las ventanas 06:00–14:00, 06:00–15:00 y 06:00–18:00 y sus miembros calculados permanecen sin cambios.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA04</div><div class="ca-title">Segmentación por CPL</div><div class="ca-desc">La dimensión <code>GM CPL DISTRIBUCION</code> está disponible con <code>CPL</code>, ciudad anexa y regional.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA05</div><div class="ca-title">Todas las ciudades configuradas</div><div class="ca-desc"><code>StrCiudadesGMD</code> documenta “AHORA APLICAN TODAS”; no existe filtro Top 10 en la extracción.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA06</div><div class="ca-title">Tipos de manifiesto</div><div class="ca-desc">Se incluyen todos los tipos aplicables a distribución (Carga, Documentos, Valores y otros) vía <code>G_ID_TIPO_GUIA</code>.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA07</div><div class="ca-title">Uso real de dimensiones</div><div class="ca-desc">Se valida que las FKs no apunten por defecto a miembros centinela; la consulta de control cuantifica la brecha.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA08</div><div class="ca-title">Alcance año 2026</div><div class="ca-desc">El repoblamiento se limita a 2026 mediante <code>000REPOBLAR_A_DESARROLLO</code> y los parámetros de fecha.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA09</div><div class="ca-title">Registros sin información → No disponible</div><div class="ca-desc">Los registros sin datos dimensionales se asignan a <code>-888</code> / <code>NO REPORTADO</code> sin descartarse.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+      <div class="ca-card"><div class="ca-id">CA10</div><div class="ca-title">No afectación de Torre de Control</div><div class="ca-desc">Los indicadores vigentes y el grupo de Eficiencia en Recolección no se modifican; el cambio es aditivo.</div><span class="ca-status status-ok">✓ Documentado</span></div>
+    </div>
+    <div class="info-box info"><strong>Nota:</strong> el PBI enumera CA01 y CA03–CA10; no se define un CA02 para este evolutivo, por lo que no se documenta un criterio inexistente.</div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 10 ══════════ -->
+<div class="doc-section" id="cap10">
+  <div class="section-header" onclick="toggleSection('body10',this)">
+    <div class="sec-num">10</div>
+    <div class="sec-title">Capa de Visualización y Analítica (Cubo SSAS)</div>
+    <span class="sec-badge badge-green">OLAP</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body10">
+    <h3>10.1 Modelo de la perspectiva de Gestión en Línea</h3>
+    <div class="diagram-wrap" onclick="openZoom('dg10')">
+      <div class="zoom-hint">🔍 Clic para ampliar</div>
+      <div class="diagram-label">Diagrama 10.1 — Hecho de distribución y dimensiones de la perspectiva</div>
+      <div class="mermaid" id="dg10">
+flowchart TD
+  F["⭐ FAC.GM_DISTRIBUCION<br/>G_TIME_ID · G_ID_GEOGRAFIA<br/>G_ID_TIPO_GUIA · S_ID_HORA_REP"]
+  F --> D1["📅 TIEMPO / TIEMPO_ENTREGA_ENVIO"]
+  F --> D2["🏢 GM CPL DISTRIBUCION 🆕<br/>CPL · CIUDAD ANEXA · REGIONAL"]
+  F --> D3["⏱️ GM_HORA_DISTRIBUCION<br/>HORA REPORTE<br/>GRUPO GESTION EN LINEA"]
+  F --> D4["🗺️ GM_ZONA_URBANA"]
+  F --> D5["📦 TIPO GUIA · UEN_PROD_SUBP"]
+  F --> D6["🌎 GEOGRAFIA ORIGEN / DESTINO"]
+  F --> D7["🔁 ID PROCESO CONCEPTO SZU / REP"]
+  style F fill:#00b0f0,color:#032b3b,stroke:#0072b1
+  style D2 fill:#10b981,color:#fff
+  style D3 fill:#f59e0b,color:#032b3b
+      </div>
+    </div>
+
+    <h3>10.2 Contenido de la perspectiva</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Dimensión</th><th>Visible</th><th>Observación</th></tr></thead>
+      <tbody>
+        <tr><td><code>TIEMPO_ENTREGA_ENVIO</code></td><td>✅</td><td>Tiempo de entrega del envío.</td></tr>
+        <tr><td><code>ID PROCESO CONCEPTO REP</code></td><td>✅</td><td>Proceso/concepto del reporte.</td></tr>
+        <tr><td><code>GM_ZONA_URBANA</code></td><td>✅</td><td>Ciudad, zona y tipo de zona urbana.</td></tr>
+        <tr><td><code>GM CPL DISTRIBUCION</code></td><td>✅ 🆕</td><td>CPL y ciudad anexa.</td></tr>
+        <tr><td><code>TIEMPO</code></td><td>✅</td><td>Año, mes, día.</td></tr>
+        <tr><td><code>TIPO GUIA</code></td><td>✅</td><td>Tipo de manifiesto.</td></tr>
+        <tr><td><code>UEN_PROD_SUBP</code></td><td>✅</td><td>Portafolio.</td></tr>
+        <tr><td><code>GEOGRAFIA_DESTINO_GUIA</code> / <code>GEOGRAFIA_ORIGEN_GUIA</code></td><td>✅</td><td>Geografía del envío.</td></tr>
+        <tr><td><code>ID PROCESO CONCEPTO SZU</code></td><td>✅</td><td>Salida a zona urbana.</td></tr>
+        <tr><td><code>GM_HORA_DISTRIBUCION</code></td><td>✅</td><td>Hora y grupos de gestión en línea.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>10.3 Miembros calculados del cubo</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Miembro</th><th>Grupo de medida</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr><td><code>Efectividad 6 am a 3 pm</code></td><td>OPORTUNIDAD REGISTRO GESTION EN LINEA</td><td>Vigente</td></tr>
+        <tr><td><code>Efectividad 6 a 6</code></td><td>OPORTUNIDAD REGISTRO GESTION EN LINEA</td><td>Vigente</td></tr>
+        <tr><td><code>Efectividad 6 a 2</code></td><td>OPORTUNIDAD REGISTRO GESTION EN LINEA</td><td>Vigente</td></tr>
+        <tr><td><strong><code>Efectividad 0 a 24</code></strong></td><td>OPORTUNIDAD REGISTRO GESTION EN LINEA</td><td><strong>NUEVO</strong></td></tr>
+        <tr><td><code>Eficiencia Recoleccion Guia Asignada</code></td><td>EFICIENCIA EN RECOLECCION</td><td>Vigente (sin cambio)</td></tr>
+        <tr><td><code>Porc Eficiencia Recoleccion</code></td><td>EFICIENCIA EN RECOLECCION</td><td>Vigente (sin cambio)</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>10.4 Consultas MDX de validación</h3>
+    <div class="code-block"><span class="cm">-- Comparativo de ventanas (la nueva no debe alterar las previas)</span>
+<span class="kw">SELECT</span> {
+  [Measures].[Efectividad 0 a 24],
+  [Measures].[Efectividad 6 a 2],
+  [Measures].[Efectividad 6 am a 3 pm],
+  [Measures].[Efectividad 6 a 6]
+} <span class="kw">ON</span> COLUMNS,
+  [GM CPL DISTRIBUCION].[CPL].MEMBERS <span class="kw">ON</span> ROWS
+<span class="kw">FROM</span> [OPORTUNIDAD REGISTRO GESTION EN LINEA];
+
+<span class="cm">-- Verificación CA01: la suma de los 12 grupos equivale a Cantidad Guias</span>
+<span class="kw">WITH MEMBER</span> [Measures].[SUMA_GRUPOS] <span class="kw">AS</span>
+  <span class="fn">SUM</span>([GM HORA DISTRIBUCION].[GRUPO GESTION EN LINEA].MEMBERS,
+      [Measures].[Cantidad Guias])
+<span class="kw">SELECT</span> {[Measures].[Cantidad Guias],[Measures].[SUMA_GRUPOS]} <span class="kw">ON</span> COLUMNS
+<span class="kw">FROM</span> [OPORTUNIDAD REGISTRO GESTION EN LINEA];</div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar captura de Power BI con la medida Efectividad 0 a 24 y el filtro CPL]</span></div>
+    <div class="evidence-box"><strong>📷 Captura de evidencia requerida</strong><span>[Insertar diagrama DSV y relaciones del cubo GREEN_MOBILE en SSDT]</span></div>
+  </div>
+</div>
+
+<!-- ══════════ CAP 11 ══════════ -->
+<div class="doc-section" id="cap11">
+  <div class="section-header" onclick="toggleSection('body11',this)">
+    <div class="sec-num">11</div>
+    <div class="sec-title">Anexos y Apéndices Técnicos</div>
+    <span class="sec-badge badge-blue">Referencia</span>
+    <button class="section-toggle">Envolver</button>
+  </div>
+  <div class="section-body" id="body11">
+    <h3>11.1 Convenciones de nomenclatura</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Prefijo / patrón</th><th>Aplica a</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td><code>GM_</code></td><td>Objetos del dominio Green Mobile</td><td>GM_DISTRIBUCION</td></tr>
+        <tr><td><code>DIM.</code> / <code>FAC.</code> / <code>TMP.</code></td><td>Esquemas del data mart</td><td>DIM.GM_HORA_DISTRIBUCION</td></tr>
+        <tr><td><code>P0n_</code> / <code>SISMILENIO_</code></td><td>Paquetes de extracción y carga</td><td>SISMILENIO_EXTRAER_GM_DISTRIBUCION.dtsx</td></tr>
+        <tr><td><code>000</code></td><td>Paquete de repoblamiento</td><td>000REPOBLAR_A_DESARROLLO.dtsx</td></tr>
+        <tr><td><code>Str…</code></td><td>Parámetros tipo cadena</td><td>StrCiudadesGMD</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>11.2 Valores centinela</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Valor</th><th>Tipo</th><th>Significado</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td><code>-888</code></td><td>INT</td><td>Miembro desconocido / no reportado</td><td>Dimensiones del modelo (hora, geografía, producto).</td></tr>
+        <tr><td><code>NO REPORTADO</code></td><td>VARCHAR</td><td>Descriptor de ausencia de información</td><td><code>DIM.GM_HORA_DISTRIBUCION</code>.</td></tr>
+        <tr><td><code>-1</code></td><td>INT</td><td>Clave no asignada</td><td>Uso puntual en tablas de trabajo.</td></tr>
+        <tr><td><code>1900-01-01</code></td><td>DATE</td><td>Fecha desconocida o nula</td><td>Fechas de proceso.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>11.3 Catálogo de códigos de error</h3>
+    <div class="tbl-wrap"><table class="data-table">
+      <thead><tr><th>Código</th><th>Tipo</th><th>Descripción</th><th>Acción correctiva</th></tr></thead>
+      <tbody>
+        <tr><td><code>DTS_E_OLEDBERROR</code></td><td>ERROR</td><td>Fallo de conectividad OLE DB.</td><td>Validar Connection Managers y permisos.</td></tr>
+        <tr><td><code>DTS_E_OLEDB_NOPROVIDER_ERROR</code></td><td>ERROR</td><td>Proveedor no disponible.</td><td>Verificar instalación del proveedor SQL Server.</td></tr>
+        <tr><td><code>DTS_E_PROCESSINGERROR</code></td><td>ERROR</td><td>Fallo del procesamiento SSAS.</td><td>Revisar log de Analysis Services y la partición.</td></tr>
+        <tr><td><code>DTS_W_MAXIMUMERRORCOUNTREACHED</code></td><td>ERROR</td><td>Máximo de errores alcanzado en el flujo.</td><td>Depurar calidad de datos en TMP.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>11.4 Glosario técnico</h3>
+    <div class="accordion-group">
+      <div class="accordion-item"><div class="accordion-trigger" onclick="toggleAccordion('g1')">CPL — Centro de Procesamiento Logístico <span class="accordion-arrow">▶</span></div><div class="accordion-body" id="g1">Unidad logística que procesa y distribuye envíos en una ciudad o conjunto de ciudades. Se incorpora como dimensión para segmentar la operación.</div></div>
+      <div class="accordion-item"><div class="accordion-trigger" onclick="toggleAccordion('g2')">Efectividad 0 a 24 <span class="accordion-arrow">▶</span></div><div class="accordion-body" id="g2">Miembro calculado MDX que mide la proporción de guías gestionadas en la ventana de día completo (00:00:01–23:59:59) respecto del total de guías.</div></div>
+      <div class="accordion-item"><div class="accordion-trigger" onclick="toggleAccordion('g3')">GRUPO GESTION EN LINEA <span class="accordion-arrow">▶</span></div><div class="accordion-body" id="g3">Atributo de la dimensión horaria que agrupa las 24 horas en 12 grupos (1–12) utilizados por la nueva medida.</div></div>
+      <div class="accordion-item"><div class="accordion-trigger" onclick="toggleAccordion('g4')">Zona urbana / SZU <span class="accordion-arrow">▶</span></div><div class="accordion-body" id="g4">Salida a zona urbana: evento que marca el inicio de la distribución en la ciudad de destino y sirve de ancla para identificar días posteriores.</div></div>
+      <div class="accordion-item"><div class="accordion-trigger" onclick="toggleAccordion('g5')">ProcessUpdate vs. ProcessFull <span class="accordion-arrow">▶</span></div><div class="accordion-body" id="g5"><strong>ProcessUpdate</strong> refresca miembros de dimensión sin reprocesar hechos; <strong>ProcessFull</strong> reconstruye por completo la partición o dimensión.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="doc-footer">
+  <strong>VIR_MT_ETL_ESTANDAR_GREEN_MOBILE</strong> · Feature 340288-PC-AJCUBO · PBI-02<br>
+  Autor: John Cruz · Fecha: 2026-11-19 · Versión 1.0 · Confidencial — Uso interno
+</div>
+
+</main>
+
+<!-- ══════════ LIGHTBOX ══════════ -->
+<div id="zoomModal">
+  <div id="zoomContent">
+    <div class="zoom-toolbar">
+      <button class="zoom-btn" onclick="zoomIn()">＋ Acercar</button>
+      <button class="zoom-btn" onclick="zoomOut()">－ Alejar</button>
+      <button class="zoom-btn" onclick="zoomReset()">100%</button>
+      <button class="zoom-btn" onclick="zoomFit()">⛶ Ajustar</button>
+      <button class="zoom-btn" onclick="downloadDiagram()">⬇ Descargar SVG</button>
+      <span class="zoom-caption">Rueda del ratón para zoom · arrastrar para desplazar</span>
+      <button class="zoom-btn" onclick="closeZoom()">✕ Cerrar</button>
+    </div>
+    <div id="zoomInner"></div>
+  </div>
+</div>
+
+<script>
+mermaid.initialize({startOnLoad:true,securityLevel:'loose',theme:'base',themeVariables:{
+  primaryColor:'#00b0f0',primaryTextColor:'#032b3b',primaryBorderColor:'#0072b1',
+  lineColor:'#64748b',secondaryColor:'#e6f7fd',tertiaryColor:'#f8fafc',fontSize:'13px'}});
+
+function toggleTheme(){
+  const b=document.body;
+  const dark=b.getAttribute('data-theme')==='dark';
+  b.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('themeToggle').textContent=dark?'🌙 Claro':'☀️ Oscuro';
+  localStorage.setItem('theme',dark?'light':'dark');
+}
+(function(){
+  const t=localStorage.getItem('theme');
+  if(t){document.body.setAttribute('data-theme',t);
+    document.getElementById('themeToggle').textContent=t==='dark'?'☀️ Oscuro':'🌙 Claro';}
+})();
+
+function toggleSection(id,header){
+  const body=document.getElementById(id);
+  const collapsed=body.classList.toggle('collapsed');
+  const btn=header&&header.querySelector('.section-toggle');
+  if(btn) btn.textContent=collapsed?'Desenvolver':'Envolver';
+}
+function wrapAll(){
+  document.querySelectorAll('.section-body').forEach(b=>{
+    b.classList.add('collapsed');
+    const btn=b.parentElement.querySelector('.section-toggle');
+    if(btn) btn.textContent='Desenvolver';
+  });
+}
+function unwrapAll(){
+  document.querySelectorAll('.section-body').forEach(b=>{
+    b.classList.remove('collapsed');
+    const btn=b.parentElement.querySelector('.section-toggle');
+    if(btn) btn.textContent='Envolver';
+  });
+}
+function toggleAccordion(id){
+  const body=document.getElementById(id);
+  if(!body) return;
+  const trigger=body.previousElementSibling;
+  body.classList.toggle('open');
+  if(trigger) trigger.classList.toggle('open');
+}
+function toggleBranch(id){
+  const ch=document.getElementById(id);
+  const arr=document.getElementById('arr-'+id);
+  const open=ch.classList.toggle('open');
+  if(arr) arr.classList.toggle('open',open);
+}
+function expandAll(){
+  document.querySelectorAll('.tree-children').forEach(c=>c.classList.add('open'));
+  document.querySelectorAll('.tree-arrow').forEach(a=>a.classList.add('open'));
+}
+function collapseAll(){
+  document.querySelectorAll('.tree-children').forEach(c=>c.classList.remove('open'));
+  document.querySelectorAll('.tree-arrow').forEach(a=>a.classList.remove('open'));
+}
+function navTo(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+  const body=el.querySelector('.section-body');
+  if(body){body.classList.remove('collapsed');
+    const btn=el.querySelector('.section-toggle'); if(btn) btn.textContent='Envolver';}
+  document.querySelectorAll('.tree-leaf').forEach(l=>l.classList.remove('active'));
+  document.querySelectorAll('.tree-leaf').forEach(l=>{
+    if((l.getAttribute('onclick')||'').includes(id)) l.classList.add('active');
+  });
+  if(window.innerWidth<=1024) document.getElementById('sidebar').classList.remove('open');
+}
+function filterContent(q){
+  const term=(q||'').toLowerCase().trim();
+  document.querySelectorAll('.doc-section').forEach(s=>{
+    s.style.display=(!term||s.textContent.toLowerCase().includes(term))?'':'none';
+  });
+}
+let zScale=1;
+function openZoom(id){
+  const src=document.getElementById(id);
+  if(!src) return;
+  const inner=document.getElementById('zoomInner');
+  inner.innerHTML=src.innerHTML;
+  inner.style.transform='scale(1)'; zScale=1;
+  document.getElementById('zoomModal').classList.add('open');
+  const nodes=inner.querySelectorAll('.mermaid');
+  if(window.mermaid&&nodes.length){try{mermaid.run({nodes:nodes});}catch(e){console.warn(e);}}
+}
+function closeZoom(){
+  document.getElementById('zoomModal').classList.remove('open');
+  document.getElementById('zoomInner').innerHTML='';
+}
+function zoomIn(){zScale=Math.min(zScale+0.2,4);applyZoom();}
+function zoomOut(){zScale=Math.max(zScale-0.2,0.3);applyZoom();}
+function zoomReset(){zScale=1;applyZoom();}
+function zoomFit(){zScale=1;applyZoom();}
+function applyZoom(){document.getElementById('zoomInner').style.transform='scale('+zScale+')';}
+function downloadDiagram(){
+  const svg=document.getElementById('zoomInner').querySelector('svg');
+  if(!svg){alert('El diagrama aún no está renderizado.');return;}
+  const clone=svg.cloneNode(true);
+  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const blob=new Blob([new XMLSerializer().serializeToString(clone)],{type:'image/svg+xml'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='diagrama_GREEN_MOBILE.svg';a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.getElementById('zoomModal').addEventListener('click',function(e){if(e.target===this)closeZoom();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeZoom();});
+document.getElementById('zoomInner').addEventListener('wheel',function(e){
+  e.preventDefault();
+  if(e.deltaY<0)zoomIn();else zoomOut();
+},{passive:false});
+(function(){
+  const inner=document.getElementById('zoomInner');
+  let down=false,sx=0,sy=0,sl=0,st=0;
+  inner.addEventListener('mousedown',e=>{
+    if(zScale<=1) return;
+    down=true;inner.classList.add('grabbing');
+    sx=e.clientX;sy=e.clientY;sl=inner.scrollLeft;st=inner.scrollTop;
+  });
+  window.addEventListener('mouseup',()=>{down=false;inner.classList.remove('grabbing');});
+  inner.addEventListener('mousemove',e=>{
+    if(!down)return;
+    inner.scrollLeft=sl-(e.clientX-sx);
+    inner.scrollTop=st-(e.clientY-sy);
+  });
+})();
+</script>
+</body>
+</html>
